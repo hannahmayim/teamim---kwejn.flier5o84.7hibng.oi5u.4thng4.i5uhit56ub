@@ -1,0 +1,2135 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>טעמים</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+Hebrew:wght@300;400;600;700&family=Cinzel:wght@400;600&display=swap" rel="stylesheet">
+<style>
+@font-face { font-family:'SBL Hebrew'; src:url('fonts/SBL Hebrew.ttf') format('truetype'); }
+
+:root {
+  --ink:#1a1008; --parchment:#f5ead0; --parch-dark:#e8d5a8;
+  --gold:#c9913a; --gold-l:#e8b95a; --gold-glow:rgba(201,145,58,.3);
+  --crimson:#7a1515; --crim-l:#a02020;
+  --text:#2a1a08; --muted:#8a6a3a; --dim:rgba(26,16,8,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:'SBL Hebrew','Noto Serif Hebrew',serif;background:var(--ink);color:var(--text);
+  position:fixed;width:100%;height:100%;overflow:hidden}
+
+/* ── SCREENS ── */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .35s ease}
+.screen.active{opacity:1;pointer-events:all}
+
+/* ── TYPOGRAPHY ── */
+.cinzel{font-family:'Cinzel',serif}
+.hebrew{font-family:'SBL Hebrew','Noto Serif Hebrew',serif}
+
+/* ── HOME ── */
+#home{background:var(--ink)}
+.home-top{padding:56px 36px 16px;flex-shrink:0}
+.app-title{font-family:'SBL Hebrew',serif;font-size:60px;font-weight:700;color:var(--gold-l);
+  text-align:center;line-height:1;letter-spacing:-1px;
+  animation:glow 3s ease-in-out infinite alternate;
+  text-shadow:0 0 40px var(--gold-glow),0 2px 8px rgba(0,0,0,.5)}
+@keyframes glow{from{text-shadow:0 0 30px var(--gold-glow),0 2px 8px rgba(0,0,0,.5)}
+  to{text-shadow:0 0 60px rgba(201,145,58,.5),0 2px 8px rgba(0,0,0,.5)}}
+.app-sub{font-family:'Cinzel',serif;font-size:11px;letter-spacing:4px;color:rgba(201,145,58,.5);
+  text-align:center;margin-top:14px;direction:ltr}
+.stats-row{display:flex;align-items:center;justify-content:center;gap:20px;margin-top:28px}
+.stat-pill{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(201,145,58,.15);border-radius:50px;padding:7px 16px}
+.stat-icon{font-size:18px}
+.stat-val{font-family:'Cinzel',serif;font-size:16px;color:var(--gold-l);direction:ltr}
+.stat-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:rgba(201,145,58,.45);direction:ltr}
+
+/* xp bar */
+.xp-bar-wrap{padding:0 36px;margin-top:28px;flex-shrink:0}
+.xp-row{display:flex;justify-content:space-between;margin-bottom:5px;direction:ltr}
+.xp-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:rgba(201,145,58,.4)}
+.xp-val{font-family:'Cinzel',serif;font-size:10px;color:var(--gold-l)}
+.xp-track{height:7px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;direction:ltr}
+.xp-fill{height:100%;background:linear-gradient(90deg,var(--crimson),var(--gold));border-radius:2px;
+  width:0%;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
+
+/* groups scroll */
+.groups-scroll{flex:1;overflow-y:auto;padding:12px 36px 16px;-webkit-overflow-scrolling:touch}
+.groups-scroll::-webkit-scrollbar{display:none}
+.section-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;
+  color:var(--muted);margin:12px 0 8px;direction:ltr}
+
+.group-card{background:rgba(255,255,255,.5);border:1px solid rgba(201,145,58,.2);
+  border-radius:14px;padding:14px 16px;margin-bottom:8px;cursor:pointer;
+  display:flex;align-items:center;gap:14px;transition:all .2s;position:relative;overflow:hidden;
+  box-shadow:0 2px 8px rgba(26,16,8,.08)}
+.group-card:active{transform:scale(.98)}
+.group-card.available{border-color:rgba(201,145,58,.35);background:rgba(255,255,255,.6)}
+.group-card.in-progress{border-color:var(--gold);background:rgba(201,145,58,.1)}
+.group-card.complete{border-color:var(--crimson);background:rgba(122,21,21,.06)}
+.group-card.locked{opacity:.35;cursor:default;background:rgba(26,16,8,.03)}
+.group-card.available .gc-orb{background:linear-gradient(135deg,var(--gold),#a06820);color:var(--ink)}
+.group-card.in-progress .gc-orb{background:linear-gradient(135deg,var(--gold),#a06820);color:var(--ink);
+  animation:orb-pulse 2s infinite}
+@keyframes orb-pulse{0%,100%{box-shadow:0 0 0 0 var(--gold-glow)}50%{box-shadow:0 0 0 8px rgba(201,145,58,0)}}
+.group-card.complete .gc-orb{background:linear-gradient(135deg,rgba(122,21,21,.7),rgba(80,14,14,.5));
+  color:var(--gold-l);border:1px solid rgba(122,21,21,.5)}
+.group-card.locked .gc-orb{background:rgba(255,255,255,.05);color:rgba(255,255,255,.2)}
+.gc-orb{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:20px;font-family:'SBL Hebrew',serif}
+.gc-info{flex:1;min-width:0}
+.gc-name-row{display:flex;align-items:baseline;gap:8px;direction:ltr}
+.gc-heb{font-family:'SBL Hebrew',serif;font-size:18px;color:var(--text)}
+.gc-lat{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1px;color:var(--muted)}
+.gc-dots{display:flex;gap:4px;margin-top:6px;direction:ltr}
+.gd{width:5px;height:5px;border-radius:50%}
+.gd.done{background:var(--crimson)}
+.gd.cur{background:var(--gold);transform:scale(1.3)}
+.gd.lock{background:rgba(255,255,255,.1)}
+.gc-status{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;
+  color:var(--muted);margin-top:4px;direction:ltr}
+.gc-arrow{font-size:16px;color:var(--gold);flex-shrink:0}
+
+.home-footer{padding:28px 36px 44px;flex-shrink:0}
+.btn-ref{width:100%;padding:14px;background:rgba(26,16,8,.04);
+  border:1px solid rgba(201,145,58,.3);border-radius:14px;
+  font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;
+  color:var(--muted);cursor:pointer;direction:ltr;transition:all .2s}
+.btn-ref:active{background:rgba(201,145,58,.1)}
+
+/* ── SHARED NAV ── */
+.snav{display:flex;align-items:center;justify-content:space-between;padding:52px 22px 0;flex-shrink:0}
+.back-btn{width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:17px}
+.back-light{background:rgba(26,16,8,.08);color:var(--muted)}
+.back-dark{background:rgba(26,16,8,.08);color:var(--muted)}
+.nav-badge{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px}
+.nav-badge-light{color:var(--muted)}
+.nav-badge-dark{color:var(--muted)}
+.pdots{display:flex;gap:6px;direction:ltr}
+.pd{width:6px;height:6px;border-radius:50%;background:var(--parch-dark)}
+.pd.active{background:var(--gold);transform:scale(1.3)}
+.pd.done{background:var(--crimson)}
+
+/* ── MEET ── */
+#meet{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+.meet-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:16px 24px;gap:16px}
+.word-card{background:rgba(255,255,255,.5);border:1px solid rgba(201,145,58,.2);
+  border-radius:20px;padding:24px 36px;text-align:center;
+  box-shadow:0 4px 24px rgba(26,16,8,.1);width:100%;max-width:340px}
+.wc-ctx{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--muted);direction:ltr;margin-bottom:14px}
+.wc-heb{font-family:'SBL Hebrew',serif;font-size:50px;color:var(--text);line-height:1.65;direction:rtl}
+.wc-translit{font-family:'Cinzel',serif;font-size:11px;color:var(--muted);direction:ltr;margin-top:6px}
+.wc-trans{font-size:12px;color:var(--muted);direction:ltr;font-style:italic;margin-top:3px}
+
+.audio-wrap{display:flex;flex-direction:column;align-items:center;gap:7px}
+.audio-btn{width:68px;height:68px;border-radius:50%;
+  background:linear-gradient(135deg,var(--gold),#a06820);border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 4px 20px rgba(201,145,58,.4);transition:transform .15s;font-size:26px}
+.audio-btn:active{transform:scale(.92)}
+.audio-btn.playing{animation:ripple .9s ease-out}
+@keyframes ripple{0%{box-shadow:0 4px 20px rgba(201,145,58,.4),0 0 0 0 rgba(201,145,58,.4)}
+  70%{box-shadow:0 4px 20px rgba(201,145,58,.4),0 0 0 22px rgba(201,145,58,0)}
+  100%{box-shadow:0 4px 20px rgba(201,145,58,.4),0 0 0 0 rgba(201,145,58,0)}}
+.audio-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--muted);direction:ltr}
+
+.info-card{background:rgba(255,255,255,.45);border:1px solid rgba(201,145,58,.15);
+  border-radius:16px;padding:18px 22px;width:100%;max-width:340px}
+.ic-namebar{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;direction:ltr}
+.ic-heb{font-family:'SBL Hebrew',serif;font-size:20px;font-weight:700;color:var(--text)}
+.ic-lat{font-family:'Cinzel',serif;font-size:13px;color:var(--muted)}
+.ic-badge{display:inline-block;background:rgba(122,21,21,.1);color:var(--crimson);
+  border-radius:20px;padding:2px 12px;font-family:'Cinzel',serif;font-size:9px;
+  letter-spacing:2px;direction:ltr;margin-bottom:10px}
+.ic-desc{font-size:13px;line-height:1.75;color:var(--text);direction:ltr}
+.ic-desc strong{color:var(--crimson)}
+
+.meet-foot{padding:14px 24px 44px;flex-shrink:0}
+.btn-p{width:100%;padding:17px;background:linear-gradient(135deg,var(--gold),#a06820);
+  border:none;border-radius:14px;font-family:'SBL Hebrew','Noto Serif Hebrew',serif;
+  font-size:19px;font-weight:700;color:var(--ink);cursor:pointer;
+  box-shadow:0 4px 20px rgba(201,145,58,.3);transition:transform .15s}
+.btn-p:active{transform:scale(.97)}
+
+/* ── QUIZ ── */
+#quiz{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+.quiz-top{padding:52px 22px 0;flex-shrink:0}
+.quiz-q{text-align:center;font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;
+  color:var(--muted);margin-top:18px;margin-bottom:3px;direction:ltr}
+.quiz-sub{text-align:center;font-size:17px;color:var(--text);padding:0 20px}
+.quiz-mid{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px}
+.audio-btn-lg{width:96px;height:96px;border-radius:50%;
+  background:rgba(201,145,58,.15);border:2px solid rgba(201,145,58,.4);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:38px;transition:all .2s}
+.audio-btn-lg:active{background:rgba(201,145,58,.18);transform:scale(.95)}
+.audio-btn-lg.playing{border-color:var(--gold);animation:big-ripple 1s ease-out}
+@keyframes big-ripple{0%{box-shadow:0 0 0 0 rgba(201,145,58,.4)}100%{box-shadow:0 0 0 38px rgba(201,145,58,0)}}
+.quiz-hint{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;
+  color:var(--muted);direction:ltr}
+.quiz-opts{padding:0 18px 44px;display:grid;grid-template-columns:1fr 1fr;gap:9px;flex-shrink:0}
+.opt{padding:15px 10px;background:rgba(255,255,255,.55);border:1px solid rgba(201,145,58,.2);
+  border-radius:13px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;
+  transition:all .2s;box-shadow:0 2px 6px rgba(26,16,8,.07)}
+.opt:active{transform:scale(.95)}
+.opt-heb{font-family:'SBL Hebrew',serif;font-size:21px;color:var(--text)}
+.opt-lat{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;color:var(--muted);direction:ltr}
+.opt.correct{background:rgba(50,120,50,.2);border-color:rgba(80,180,80,.5)}
+.opt.correct .opt-heb{color:#7dd87d}
+.opt.wrong{background:rgba(120,20,20,.2);border-color:rgba(180,60,60,.5)}
+.opt.wrong .opt-heb{color:#d87d7d}
+
+/* ── SUCCESS ── */
+#success{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+.suc-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:18px;padding:24px}
+.suc-star{font-size:76px;animation:star-pop .65s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes star-pop{from{transform:scale(0) rotate(-25deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.suc-title{font-family:'SBL Hebrew',serif;font-size:34px;font-weight:700;color:var(--text);
+  text-align:center}
+.suc-sub{font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px;
+  color:var(--muted);direction:ltr;text-align:center}
+.xp-chip{background:rgba(201,145,58,.15);border:1px solid rgba(201,145,58,.35);
+  border-radius:50px;padding:9px 26px;font-family:'Cinzel',serif;font-size:15px;
+  color:var(--crimson);direction:ltr}
+.suc-card{background:rgba(255,255,255,.55);border:1px solid rgba(201,145,58,.25);
+  border-radius:16px;padding:18px 30px;text-align:center;box-shadow:0 2px 8px rgba(26,16,8,.08)}
+.suc-card-heb{font-family:'SBL Hebrew',serif;font-size:38px;color:var(--text);display:block}
+.suc-card-lbl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--muted);direction:ltr}
+.next-preview{text-align:center;direction:ltr}
+.np-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--muted)}
+.np-name{font-family:'Cinzel',serif;font-size:12px;color:var(--crimson);margin-top:2px}
+.suc-foot{padding:14px 24px 48px;flex-shrink:0;display:flex;flex-direction:column;gap:10px}
+.btn-s{width:100%;padding:16px;background:rgba(26,16,8,.04);
+  border:1px solid rgba(201,145,58,.3);border-radius:14px;
+  font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;
+  color:var(--muted);cursor:pointer;direction:ltr}
+
+/* ── REFERENCE ── */
+#reference{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+.ref-head{padding:52px 22px 14px;flex-shrink:0}
+.ref-title{font-family:'Cinzel',serif;font-size:13px;letter-spacing:4px;
+  color:var(--text);text-align:center;direction:ltr}
+.ref-sub{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;
+  color:var(--muted);text-align:center;direction:ltr;margin-top:4px}
+.ref-scroll{flex:1;overflow-y:auto;padding:0 18px 24px;-webkit-overflow-scrolling:touch}
+.ref-scroll::-webkit-scrollbar{display:none}
+.ref-section-head{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;
+  color:var(--muted);padding:14px 0 7px;direction:ltr;border-top:1px solid rgba(201,145,58,.2);margin-top:6px}
+.ref-section-head:first-child{border-top:none;margin-top:0}
+.ref-unit{display:flex;align-items:center;gap:12px;padding:10px 12px;
+  background:rgba(255,255,255,.5);border:1px solid rgba(201,145,58,.15);
+  border-radius:12px;margin-bottom:6px;cursor:pointer;transition:all .2s;
+  box-shadow:0 1px 4px rgba(26,16,8,.06)}
+.ref-unit:active{transform:scale(.98)}
+.ref-unit.learned{border-color:rgba(122,21,21,.3);background:rgba(122,21,21,.05)}
+.ref-unit.locked{opacity:.35;cursor:default}
+.ref-orb{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:17px;font-family:'SBL Hebrew',serif}
+.ref-orb-locked{background:rgba(26,16,8,.06);color:rgba(26,16,8,.25)}
+.ref-orb-available{background:rgba(201,145,58,.12);border:1px solid rgba(201,145,58,.3);color:var(--crimson)}
+.ref-orb-learned{background:linear-gradient(135deg,rgba(122,21,21,.6),rgba(80,14,14,.4));
+  color:var(--gold-l);border:1px solid rgba(122,21,21,.4)}
+.ref-info{flex:1}
+.ref-heb{font-family:'SBL Hebrew',serif;font-size:17px;color:var(--text)}
+.ref-lat{font-family:'Cinzel',serif;font-size:9px;letter-spacing:1px;color:var(--muted);direction:ltr}
+.ref-badge{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;color:var(--muted);direction:ltr}
+.ref-stars{color:var(--gold);font-size:10px;flex-shrink:0}
+.ref-play{width:30px;height:30px;border-radius:50%;background:rgba(201,145,58,.15);
+  border:1px solid rgba(201,145,58,.35);display:flex;align-items:center;justify-content:center;
+  font-size:12px;color:var(--crimson);cursor:pointer;flex-shrink:0}
+.ref-foot{padding:12px 20px 44px;flex-shrink:0}
+
+
+/* ── EXAMPLES CAROUSEL ── */
+.examples-wrap{width:100%;max-width:340px}
+.examples-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;
+  color:var(--muted);direction:ltr;margin-bottom:8px;text-align:center}
+.examples-scroll{display:flex;gap:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  padding-bottom:4px;scroll-snap-type:x mandatory}
+.examples-scroll::-webkit-scrollbar{display:none}
+.ex-card{flex:0 0 auto;width:200px;background:rgba(255,255,255,.5);
+  border:1px solid rgba(201,145,58,.2);border-radius:14px;padding:12px 16px;
+  scroll-snap-align:start;text-align:center}
+.ex-card.active-ex{border-color:rgba(201,145,58,.5);background:rgba(255,255,255,.65)}
+.ex-label{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1.5px;
+  color:var(--muted);direction:ltr;margin-bottom:8px}
+.ex-heb{font-family:'SBL Hebrew',serif;font-size:30px;color:var(--text);
+  line-height:1.7;direction:rtl;display:block}
+.ex-translit{font-family:'Cinzel',serif;font-size:10px;color:var(--muted);direction:ltr;margin-top:3px}
+.ex-meaning{font-size:11px;color:var(--muted);direction:ltr;font-style:italic;margin-top:2px}
+.ex-ref{font-family:'Cinzel',serif;font-size:8px;color:rgba(122,21,21,.6);direction:ltr;margin-top:5px}
+
+
+
+
+/* ── NOTATION IMAGE ── */
+.notation-wrap{width:100%;max-width:340px;background:rgba(255,255,255,.6);
+  border:1px solid rgba(201,145,58,.25);border-radius:14px;
+  padding:12px 16px 10px;overflow:hidden}
+.notation-title{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;
+  color:var(--muted);direction:ltr;margin-bottom:10px;text-align:center}
+.notation-tabs{display:flex;gap:6px;margin-bottom:10px;direction:ltr;flex-wrap:wrap}
+.ntab{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;
+  padding:3px 10px;border-radius:20px;border:1px solid rgba(201,145,58,.25);
+  background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.ntab.active{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.notation-img{width:100%;border-radius:6px;display:block}
+
+/* ── SYMBOL QUIZ ── */
+#learn{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+#quiz2{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+#quiz-s2{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+#quiz-s3{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+#quiz-s4{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+.sq-word-wrap{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:6px;padding:0 24px}
+.sq-instruction{font-family:'Cinzel',serif;font-size:10px;letter-spacing:3px;
+  color:#000;direction:ltr;margin-bottom:8px}
+.sq-symbol-card{background:rgba(255,255,255,.5);border:1px solid rgba(201,145,58,.25);
+  border-radius:20px;padding:40px;text-align:center;width:100%;max-width:340px;
+  box-shadow:0 4px 24px rgba(26,16,8,.1)}
+.sq-symbol{font-family:'SBL Hebrew','Noto Serif Hebrew',serif;font-size:120px;
+  color:var(--gold);line-height:1.4;
+  text-shadow:0 0 40px var(--gold-glow);
+  /* carrier dot so the mark has something to sit on */
+  }
+.sq-opts{padding:0 20px 44px;display:grid;grid-template-columns:1fr 1fr;
+  gap:9px;flex-shrink:0}
+.sq-opt{padding:14px 10px;background:rgba(255,255,255,.55);
+  border:1px solid rgba(201,145,58,.2);border-radius:13px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .2s;
+  box-shadow:0 2px 6px rgba(26,16,8,.07)}
+.sq-opt:active{transform:scale(.95)}
+.sq-opt-heb{font-family:'SBL Hebrew',serif;font-size:20px;color:var(--text)}
+.sq-opt-lat{font-family:'Cinzel',serif;font-size:8px;letter-spacing:1px;
+  color:var(--muted);direction:ltr}
+.sq-opt.correct{background:rgba(50,120,50,.15);border-color:rgba(80,180,80,.5)}
+.sq-opt.correct .sq-opt-heb{color:#2a7a2a}
+.sq-opt.wrong{background:rgba(120,20,20,.15);border-color:rgba(180,60,60,.5)}
+.sq-opt.wrong .sq-opt-heb{color:#7a2a2a}
+
+/* ── MODE CHOOSER ── */
+.mode-section{padding:28px 36px 0;flex-shrink:0}
+.mode-label{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;
+  color:rgba(201,145,58,.4);margin-bottom:12px;direction:ltr}
+.mode-cards{display:flex;flex-direction:column;gap:10px}
+.mode-card{display:flex;align-items:center;justify-content:center;gap:14px;
+  border-radius:16px;padding:18px 20px;cursor:pointer;transition:all .2s;position:relative}
+.mode-card:active{transform:scale(.98)}
+.mode-learn{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%);border-radius:14px}
+.mode-symbols{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%);border-radius:14px}
+.mode-symbols.locked{opacity:.4;cursor:default}
+.mode-icon{font-size:28px;flex-shrink:0;width:44px;text-align:center;
+  font-family:'SBL Hebrew',serif;color:var(--gold-l)}
+.mode-title{font-family:'Cinzel',serif;font-size:17px;letter-spacing:1px;font-weight:700;
+  color:#000;margin-bottom:4px;direction:ltr;text-align:center}
+.mode-desc{font-family:'Cinzel',serif;font-size:11px;letter-spacing:1px;
+  color:rgba(0,0,0,.5);direction:ltr;line-height:1.5;text-align:center}
+.mode-info{flex:1;display:flex;flex-direction:column;align-items:center}
+.mode-arrow{font-size:20px;color:rgba(201,145,58,.4);flex-shrink:0}
+.mode-lock{font-size:14px;flex-shrink:0;color:rgba(255,255,255,.2)}
+
+/* ── SYMBOL MODE SCREEN ── */
+#symbol-mode{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+.sm-head{padding:52px 22px 16px;flex-shrink:0;text-align:center}
+.sm-title{font-family:'Cinzel',serif;font-size:13px;letter-spacing:4px;color:var(--text);direction:ltr}
+.sm-sub{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;
+  color:var(--muted);direction:ltr;margin-top:4px}
+.sm-score-row{display:flex;justify-content:center;gap:20px;margin-top:14px}
+.sm-score-pill{background:rgba(26,16,8,.06);border:1px solid rgba(201,145,58,.25);
+  border-radius:50px;padding:6px 18px;font-family:'Cinzel',serif;
+  font-size:12px;color:var(--crimson);direction:ltr}
+.sm-score-lbl{font-size:8px;letter-spacing:2px;color:var(--muted);display:block;margin-top:1px}
+
+.mode-drill{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%);border-radius:14px}
+.mode-drill.locked{opacity:.4;cursor:default}
+
+/* ── DRILL MODE SCREEN ── */
+#drill-mode{background:linear-gradient(180deg,#f7edd5 0%,#eedfc0 55%,#e5d4a5 100%)}
+.dm-head{padding:52px 22px 16px;flex-shrink:0;text-align:center}
+.dm-title{font-family:'Cinzel',serif;font-size:18px;letter-spacing:4px;color:#000;font-weight:700;direction:ltr}
+.dm-sub{font-family:'Cinzel',serif;font-size:12px;letter-spacing:2px;
+  color:#000;font-weight:700;direction:ltr;margin-top:4px}
+.dm-score-row{display:flex;justify-content:center;gap:20px;margin-top:14px}
+.dm-score-pill{background:rgba(26,16,8,.06);border:1px solid rgba(201,145,58,.25);
+  border-radius:50px;padding:6px 18px;font-family:'Cinzel',serif;
+  font-size:16px;font-weight:700;color:#000;direction:ltr;text-align:center}
+.dm-score-lbl{font-size:10px;letter-spacing:2px;font-weight:700;color:#000;display:block;margin-top:1px}
+.dm-type-badge{font-family:'Cinzel',serif;font-size:13px;letter-spacing:3px;
+  font-weight:700;color:#000;direction:ltr;text-align:center;margin-bottom:8px}
+
+/* drill question area */
+.dm-question{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:12px;padding:0 24px}
+.dm-word-card{background:rgba(255,255,255,.6);border:1px solid rgba(201,145,58,.3);
+  border-radius:20px;padding:28px 40px;text-align:center;width:100%;max-width:340px;
+  box-shadow:0 4px 16px rgba(26,16,8,.1)}
+.dm-word{font-family:'SBL Hebrew','Noto Serif Hebrew',serif;font-size:58px;
+  color:#000;line-height:1.7;direction:rtl}
+.dm-audio-btn{width:88px;height:88px;border-radius:50%;
+  background:rgba(201,145,58,.15);border:2px solid rgba(201,145,58,.4);
+  cursor:pointer;font-size:34px;transition:all .2s;display:flex;
+  align-items:center;justify-content:center}
+.dm-audio-btn:active{background:rgba(201,145,58,.18);transform:scale(.95)}
+.dm-audio-btn.playing{border-color:var(--gold)}
+
+/* drill options */
+.dm-opts{padding:0 20px 44px;display:grid;grid-template-columns:1fr 1fr;
+  gap:9px;flex-shrink:0}
+.dm-opt{padding:14px 10px;background:rgba(255,255,255,.55);
+  border:1px solid rgba(201,145,58,.2);border-radius:13px;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .2s;
+  box-shadow:0 2px 6px rgba(26,16,8,.07)}
+.dm-opt:active{transform:scale(.95)}
+.dm-opt-heb{font-family:'SBL Hebrew',serif;font-size:28px;color:#000}
+.dm-opt-lat{font-family:'Cinzel',serif;font-size:12px;letter-spacing:1px;
+  font-weight:700;color:#000;direction:ltr}
+.dm-opt-play{width:44px;height:44px;border-radius:50%;
+  background:rgba(201,145,58,.12);border:1px solid rgba(201,145,58,.35);
+  cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;color:#000}
+.dm-opt-play.playing{border-color:var(--gold);background:rgba(201,145,58,.15)}
+.dm-opt.correct{background:rgba(50,120,50,.15);border-color:rgba(80,180,80,.5)}
+.dm-opt.wrong{background:rgba(120,20,20,.15);border-color:rgba(180,60,60,.5)}
+
+.fade-up{animation:fup .4s ease both}
+@keyframes fup{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+
+<!-- ══ HOME ══ -->
+<div class="screen active" id="home">
+  <div class="home-top">
+    <div class="app-title">טְעָמִים</div>
+    <div class="app-sub">Learning the Art of Leyning Torah</div>
+    <div class="stats-row">
+      <div class="stat-pill">
+        <span class="stat-icon">🔥</span>
+        <div>
+          <div class="stat-val" id="stat-streak">1</div>
+          <div class="stat-lbl">STREAK</div>
+        </div>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-icon">⭐</span>
+        <div>
+          <div class="stat-val" id="stat-learned">0</div>
+          <div class="stat-lbl">LEARNED</div>
+        </div>
+      </div>
+      <div class="stat-pill">
+        <span class="stat-icon">📖</span>
+        <div>
+          <div class="stat-val" id="stat-xp">0</div>
+          <div class="stat-lbl">XP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="xp-bar-wrap">
+    <div class="xp-row">
+      <span class="xp-label">Overall Progress</span>
+      <span class="xp-val" id="xp-val-txt">0 / 100</span>
+    </div>
+    <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
+  </div>
+
+  <!-- Mode chooser -->
+  <div class="mode-section">
+    <div class="mode-cards">
+
+      <div class="mode-card mode-learn" onclick="goToLearn()">
+        <div class="mode-info">
+          <div class="mode-title">Learn Teamim</div>
+          <div class="mode-desc">Meet each trope, hear its melody, Learning it step by step</div>
+        </div>
+      </div>
+
+      <div class="mode-card mode-symbols" id="mode-symbols-card" onclick="goToSymbolMode()">
+        <div class="mode-info">
+          <div class="mode-title">Symbol Recognition</div>
+          <div class="mode-desc">See the mark — name the trope</div>
+        </div>
+      </div>
+
+      <div class="mode-card mode-drill" id="mode-drill-card" onclick="goToDrillMode()">
+        <div class="mode-info">
+          <div class="mode-title">Full Drill</div>
+          <div class="mode-desc">Sound, symbol and name — tested at random</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="home-footer">
+    <button class="btn-ref" onclick="goToReference()">✦ My Teamim — Reference</button>
+  </div>
+</div>
+
+<!-- ══ LEARN (Journey Map) ══ -->
+<div class="screen" id="learn">
+  <div class="snav" style="padding:52px 22px 0">
+    <button class="back-btn back-dark" onclick="goHome()" style="background:rgba(255,255,255,.06);color:var(--muted)">←</button>
+    <span class="nav-badge nav-badge-dark" style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:3px">Journey Map</span>
+    <div style="width:38px"></div>
+  </div>
+  <div class="groups-scroll" id="groups-scroll" style="margin-top:12px"></div>
+  <div class="home-footer" style="padding:12px 20px 44px">
+    <button class="btn-ref" onclick="goToReference()">✦ My Teamim — Reference</button>
+  </div>
+</div>
+
+<!-- ══ MEET ══ -->
+<div class="screen" id="meet">
+  <div class="snav" id="meet-nav"></div>
+  <div class="meet-body" id="meet-body"></div>
+  <div class="meet-foot" id="meet-foot"></div>
+</div>
+
+<!-- ══ QUIZ ══ -->
+<div class="screen" id="quiz">
+  <div class="quiz-top">
+    <div class="snav" style="padding:0" id="quiz-nav"></div>
+    <div class="quiz-q" id="quiz-q">Listen and identify</div>
+    <div class="quiz-sub" id="quiz-sub">Which trope do you hear?</div>
+  </div>
+  <div class="quiz-mid">
+    <button class="audio-btn-lg" id="quiz-audio-btn" onclick="quizPlayAudio()">♫</button>
+    <div class="quiz-hint">Tap to play</div>
+  </div>
+  <div class="quiz-opts" id="quiz-opts"></div>
+</div>
+
+
+
+
+<!-- ══ DRILL MODE ══ -->
+<div class="screen" id="drill-mode">
+  <div class="dm-head">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <button class="back-btn back-dark" onclick="goHome()">←</button>
+      <div>
+        <div onclick="goHome()" style="font-family:'SBL Hebrew',serif;font-size:60px;font-weight:700;color:var(--gold-l);text-align:center;line-height:1;letter-spacing:-1px;margin-bottom:28px;cursor:pointer">טְעָמִים</div>
+        <div class="dm-sub">Full Drill</div>
+      </div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="dm-score-row">
+      <div class="dm-score-pill">
+        <span id="dm-correct">0</span>
+        <span class="dm-score-lbl">CORRECT</span>
+      </div>
+      <div class="dm-score-pill">
+        <span id="dm-streak">0</span>
+        <span class="dm-score-lbl">STREAK</span>
+      </div>
+      <div class="dm-score-pill">
+        <span id="dm-total">0</span>
+        <span class="dm-score-lbl">TOTAL</span>
+      </div>
+    </div>
+  </div>
+  <div class="dm-question" id="dm-question">
+    <div class="dm-type-badge" id="dm-type-badge"></div>
+  </div>
+  <div class="dm-opts" id="dm-opts"></div>
+</div>
+
+<!-- ══ SYMBOL MODE ══ -->
+<div class="screen" id="symbol-mode">
+  <div class="sm-head">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <button class="back-btn back-dark" onclick="goHome()">←</button>
+      <div>
+        <div class="sm-title">Symbol Recognition</div>
+        <div class="sm-sub">Name the trope you see</div>
+      </div>
+      <div style="width:38px"></div>
+    </div>
+    <div class="sm-score-row">
+      <div class="sm-score-pill">
+        <span id="sm-correct">0</span>
+        <span class="sm-score-lbl">CORRECT</span>
+      </div>
+      <div class="sm-score-pill">
+        <span id="sm-streak">0</span>
+        <span class="sm-score-lbl">STREAK</span>
+      </div>
+      <div class="sm-score-pill">
+        <span id="sm-remaining">0</span>
+        <span class="sm-score-lbl">REMAINING</span>
+      </div>
+    </div>
+  </div>
+  <div class="sq-word-wrap" style="flex:1">
+    <div class="sq-symbol-card">
+      <div class="sq-symbol" id="sm-symbol"></div>
+    </div>
+  </div>
+  <div class="sq-opts" id="sm-opts" style="padding:0 20px 44px"></div>
+</div>
+
+
+<!-- ══ QUIZ STEP 2: Symbol → Sound ══ -->
+<div class="screen" id="quiz-s2">
+  <div class="snav" id="quiz-s2-nav"></div>
+  <div class="sq-word-wrap" style="flex:1">
+    <div class="sq-instruction">Which sound matches this mark?</div>
+    <div class="sq-symbol-card">
+      <div class="sq-symbol" id="qs2-symbol"></div>
+    </div>
+  </div>
+  <div class="sq-opts" id="qs2-opts" style="padding:0 20px 44px"></div>
+</div>
+
+<!-- ══ QUIZ STEP 3: Word → Name ══ -->
+<div class="screen" id="quiz-s3">
+  <div class="snav" id="quiz-s3-nav"></div>
+  <div class="sq-word-wrap" style="flex:1">
+    <div class="sq-instruction">Name the trope in this word</div>
+    <div class="sq-word-card">
+      <div class="sq-word" id="qs3-word" style="font-size:50px;color:#000"></div>
+    </div>
+  </div>
+  <div class="sq-opts" id="qs3-opts" style="padding:0 20px 44px"></div>
+</div>
+
+
+<!-- ══ QUIZ STEP 4: Name → Find the word ══ -->
+<div class="screen" id="quiz-s4">
+  <div class="snav" id="quiz-s4-nav"></div>
+  <div class="sq-word-wrap" style="flex:1">
+    <div class="sq-instruction">Find the word carrying this trope</div>
+    <div class="sq-symbol-card" id="qs4-name-card">
+      <div style="font-family:'SBL Hebrew',serif;font-size:48px;color:var(--text);font-weight:700" id="qs4-name"></div>
+      <div style="font-family:'Cinzel',serif;font-size:11px;letter-spacing:2px;color:var(--muted);margin-top:6px;direction:ltr" id="qs4-latin"></div>
+    </div>
+  </div>
+  <div class="sq-opts" id="qs4-opts" style="padding:0 20px 44px"></div>
+</div>
+
+<!-- ══ SYMBOL QUIZ ══ -->
+<div class="screen" id="quiz2">
+  <div class="snav" id="quiz2-nav"></div>
+  <div class="sq-word-wrap">
+    <div class="sq-instruction">Which trope is this?</div>
+    <div class="sq-symbol-card">
+      <div class="sq-symbol" id="sq-symbol"></div>
+    </div>
+  </div>
+  <div class="sq-opts" id="sq-opts"></div>
+</div>
+
+<!-- ══ SUCCESS ══ -->
+<div class="screen" id="success">
+  <div class="suc-body" id="suc-body"></div>
+  <div class="suc-foot" id="suc-foot"></div>
+</div>
+
+<!-- ══ REFERENCE ══ -->
+<div class="screen" id="reference">
+  <div class="ref-head">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <button class="back-btn back-dark" onclick="goHome()">←</button>
+      <div>
+        <div class="ref-title">My Teamim</div>
+        <div class="ref-sub">Your personal reference</div>
+      </div>
+      <div style="width:38px"></div>
+    </div>
+  </div>
+  <div class="ref-scroll" id="ref-scroll"></div>
+  <div class="ref-foot">
+    <button class="btn-ref" onclick="goHome()">← Back to Journey</button>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   UNIT DATA
+   43 learning units: 27 individual + 16 key combinations
+   Ordered so sequential unlock = pedagogical progression
+══════════════════════════════════════════ */
+const UNITS = [
+
+/* ── GROUP: SILLUQ ── */
+{id:'silluq',symbol:'\u05BD',symbolWord:'הָאָֽרֶץ',group:'silluq',hebrew:'סִלּֽוּק',latin:'Silluq',audio:'silluq.m4a',
+ type:'disjunctive',category:'Disjunctive · Final',
+ desc:'Silluq marks the <strong>final word of every verse</strong>. It always appears with Sof Pasuk (׃) and signals the complete end of the thought. In the trope hierarchy it is the <strong>root of the entire tree</strong> — every other trope in the verse ultimately serves it.',
+ word:'הָאָֽרֶץ',translit:'ha·A·retz',meaning:'the earth',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created the heavens and the earth.'},
+
+{id:'mercha-silluq',ambiguous:true,symbol:'\u05A5',symbolWord:'וְאֵ֥ת הָאָֽרֶץ',group:'silluq',hebrew:'מֵרְכָ֥א סִלּֽוּק',latin:'Mercha-Silluq',audio:'mercha-silluq.m4a',
+ type:'combination',category:'Combination · Silluq Group',
+ desc:'Mercha precedes Silluq on the word before the verse-end. The melody shifts slightly depending on the <strong>stress pattern</strong> of the Mercha word: <em>milra</em> (final syllable stressed) and <em>millel</em> (penultimate syllable stressed) each produce a different shape. There is also an <strong>elision</strong> variant when the Mercha word flows directly into a short Silluq word.',
+ word:'וְלֹ֥א יָמֽוּת',translit:'ve·LO · ya·MUT',meaning:'"and he shall not die" — standard milra pattern',
+ verse:'וְלֹ֥א יָמֽוּת׃',
+ vref:'Vayikra 16:13',vtrans:'...and he shall not die.',
+ examples:[
+  {label:'Standard milra (final stress)',word:'וְלֹ֥א יָמֽוּת',translit:'ve·LO · ya·MUT',meaning:'and he shall not die',vref:'Vayikra 16:13'},
+  {label:'Millel — short Mercha word',word:'אָ֥ז בָּאָֽרֶץ',translit:'AZ · ba·A·retz',meaning:'then in the land',vref:'Bereshit 12:6'},
+  {label:'Millel — two syllables',word:'אַרְצָ֥ה כְּנָֽעַן',translit:'AR·tzah · ke·NA·an',meaning:'to the land of Canaan',vref:'Bereshit 12:5'},
+  {label:'Millel — longer Mercha word',word:'לָשֶׁ֥בֶת יַחְדָּֽו',translit:'la·SHE·vet · yach·DAV',meaning:'to dwell together',vref:'Bereshit 13:6'},
+  {label:'Longer phrase into verse-end',word:'אֶל־מֹשֶׁ֥ה לֵאמֹֽר',translit:'el·mo·SHE · le·MOR',meaning:'to Moses saying',vref:'Vayikra 17:1'},
+  {label:'Elision — open syllable',word:'אָחִ֥י הֽוּא',translit:'a·CHI · HU',meaning:'he is my brother',vref:'Bereshit 20:13'},
+  {label:'Elision — monosyllabic end',word:'עֶ֥בֶד לָמֽוֹ',translit:'E·ved · la·MO',meaning:'servant to him',vref:'Bereshit 9:26'},
+ ],
+ notationImg:'images/notation/mercha-silluq.png'
+},
+
+/* ── GROUP: ETNACHTA ── */
+{id:'etnachta',symbol:'\u0591',symbolWord:'אֱלֹהִ֑ים',group:'etnachta',hebrew:'אֶתְנַחְתָּ֑א',latin:'Etnachta',audio:'etnachta.m4a',
+ type:'disjunctive',category:'Disjunctive · Mid-Verse',
+ desc:'Etnachta (meaning "rest") marks the <strong>main pause within the verse</strong> — the midpoint, like a strong semicolon. Every prose verse has exactly one Etnachta, dividing it into two halves. Just as important as Silluq, but one level below.',
+ word:'אֱלֹהִ֑ים',translit:'e·lo·HIM',meaning:'God',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created the heavens and the earth.'},
+
+{id:'munach-etnachta',ambiguous:true,symbol:'\u05A3',symbolWord:'יִשְׂרָאֵ֑ל',group:'etnachta',hebrew:'מוּנַ֣ח אֶתְנַחְתָּ֑א',latin:'Munach-Etnachta',audio:'munach-etnachta.m4a',
+ type:'combination',category:'Combination · Etnachta Group',
+ desc:'<strong>Munach</strong> is the standard servant of Etnachta, preceding it on the word before. The Munach gently lifts the voice, preparing the ear for the mid-verse rest of the Etnachta. This pair is extraordinarily common.',
+ word:'יִשְׂרָאֵ֑ל',translit:'yis·ra·EL',meaning:'Israel',
+ verse:'שְׁמַ֖ע יִשְׂרָאֵ֑ל יְהוָ֥ה אֱלֹהֵ֖ינוּ יְהוָ֥ה אֶחָֽד׃',
+ vref:'Devarim 6:4',vtrans:'Hear O Israel, the Lord is our God, the Lord is one.'},
+
+{id:'tipcha-munach-etnachta',ambiguous:true,symbol:'\u0596',symbolWord:'בָּרָ֣א',group:'etnachta',hebrew:'טִפְחָ֖א מוּנַ֣ח אֶתְנַחְתָּ֑א',latin:'Tipcha-Munach-Etnachta',audio:'tipcha-munach-etnachta.m4a',
+ type:'combination',category:'Combination · Etnachta Group',
+ desc:'A three-beat phrase leading to Etnachta. Tipcha is the sub-divider of the Etnachta half-verse; Munach prepares it; Etnachta closes the half. This <strong>three-trope chain is one of the most frequent melodic patterns</strong> in Torah chanting.',
+ word:'אֱלֹהִ֑ים',translit:'e·lo·HIM',meaning:'God',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created the heavens and the earth.'},
+
+/* ── GROUP: TIPCHA ── */
+{id:'tipcha',symbol:'\u0596',symbolWord:'בְּרֵאשִׁ֖ית',group:'tipcha',hebrew:'טִפְחָ֖א',latin:'Tipcha',audio:'tipcha.m4a',
+ type:'disjunctive',category:'Disjunctive · Secondary',
+ desc:'Tipcha is the <strong>primary servant of both Silluq and Etnachta</strong> — it marks the secondary accent in each half-verse, like a comma. It is among the most frequent tropes in the Torah; you will hear it in nearly every verse. It always appears in the phrase directly before its master.',
+ word:'בְּרֵאשִׁ֖ית',translit:'be·re·SHIT',meaning:'in the beginning',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created the heavens and the earth.'},
+
+{id:'mercha-tipcha',ambiguous:true,symbol:'\u05A5',symbolWord:'הַשָּׁמַ֖יִם',group:'tipcha',hebrew:'מֵרְכָ֥א טִפְחָ֖א',latin:'Mercha-Tipcha',audio:'mercha-tipcha.m4a',
+ type:'combination',category:'Combination · Tipcha Group',
+ desc:'Mercha flows into Tipcha just as it flows into Silluq. The <strong>Mercha-Tipcha pair</strong> is extremely common — it creates a characteristic smooth two-beat rhythm that recurs throughout the Torah. Once you know this, you will hear it everywhere.',
+ word:'הַשָּׁמַ֖יִם',translit:'ha·sha·MA·yim',meaning:'the heavens',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created the heavens and the earth.'},
+
+/* ── GROUP: ZAKEF KATON ── */
+{id:'zakef-katon',symbol:'\u0594',symbolWord:'וָבֹ֔הוּ',group:'zakef-katon',hebrew:'זָקֵ֔ף קָטֹן',latin:'Zakef Katon',audio:'zakef-katon.m4a',
+ type:'disjunctive',category:'Disjunctive · Mid-Level',
+ desc:'Zakef Katon (small Zakef) is a <strong>strong mid-level pause</strong>, weaker than Etnachta but stronger than Tipcha. It frequently sub-divides the first half of the verse. Think of it as a strong comma or a brief but emphatic stop — very common throughout the Torah.',
+ word:'וָבֹ֔הוּ',translit:'va·VO·hu',meaning:'and void',
+ verse:'וְהָאָ֗רֶץ הָיְתָ֥ה תֹ֙הוּ֙ וָבֹ֔הוּ וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם',
+ vref:'Bereshit 1:2',vtrans:'And the earth was formless and void, and darkness was over the face of the deep.'},
+
+{id:'munach-zakef-katon',ambiguous:true,symbol:'\u05A3',symbolWord:'וָבֹ֔הוּ',group:'zakef-katon',hebrew:'מוּנַ֣ח זָקֵ֔ף קָטֹן',latin:'Munach-Zakef Katon',audio:'munach-zakef-katon.m4a',
+ type:'combination',category:'Combination · Zakef Katon Group',
+ desc:'Munach is the standard servant of Zakef Katon. A <strong>very common two-trope phrase</strong> — the gentle rising Munach followed by the crisp Zakef stop. You will encounter this combination dozens of times in any Torah portion.',
+ word:'וָבֹ֔הוּ',translit:'va·VO·hu',meaning:'and void',
+ verse:'וְהָאָ֗רֶץ הָיְתָ֥ה תֹ֙הוּ֙ וָבֹ֔הוּ וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם',
+ vref:'Bereshit 1:2',vtrans:'And the earth was formless and void, and darkness over the face of the deep.'},
+
+{id:'mercha-zakef-katon',ambiguous:true,symbol:'\u05A5',symbolWord:'וָבֹ֔הוּ',group:'zakef-katon',hebrew:'מֵרְכָ֥א זָקֵ֔ף קָטֹן',latin:'Mercha-Zakef Katon',audio:'mercha-zakef-katon.m4a',
+ type:'combination',category:'Combination · Zakef Katon Group',
+ desc:'Mercha can serve Zakef Katon instead of Munach when the rhythmic pattern requires it. Both create the same <strong>approach-and-stop</strong> shape — Mercha tends to appear when the Zakef word has a milra accent (stress on final syllable).',
+ word:'וָבֹ֔הוּ',translit:'va·VO·hu',meaning:'and void',
+ verse:'וְהָאָ֗רֶץ הָיְתָ֥ה תֹ֙הוּ֙ וָבֹ֔הוּ וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם',
+ vref:'Bereshit 1:2',vtrans:'And the earth was formless and void.'},
+
+/* ── GROUP: ZAKEF GADOL ── */
+{id:'zakef-gadol',symbol:'\u0595',symbolWord:'וָבֹ֕הוּ',group:'zakef-gadol',hebrew:'זָקֵ֕ף גָּדוֹל',latin:'Zakef Gadol',audio:'zakef-gadol.m4a',
+ type:'disjunctive',category:'Disjunctive · Mid-Level',
+ desc:'Zakef Gadol (large Zakef) has the same syntactic strength as Zakef Katon but a <strong>longer, more emphatic melody</strong>. It is rarer than its small counterpart and tends to appear where the text carries particular weight or where the phrase is longer.',
+ word:'וָבֹ֕הוּ',translit:'va·VO·hu',meaning:'and void',
+ verse:'וְהָאָ֗רֶץ הָיְתָ֥ה תֹ֙הוּ֙ וָבֹ֕הוּ וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם',
+ vref:'Bereshit 1:2',vtrans:'And the earth was formless and void.'},
+
+/* ── GROUP: SEGOL ── */
+{id:'segol',symbol:'\u0592',symbolWord:'וַיַּ֒רְא',group:'segol',hebrew:'סֶגּ֒וֹל',latin:'Segol',audio:'segol.m4a',
+ type:'disjunctive',category:'Disjunctive · Mid-Level',
+ desc:'Segol (the trope, not the vowel!) is a <strong>mid-level disjunctive</strong> that appears in the second half of the verse, subdividing the Silluq domain. Its melody is ornamental and distinctive — and its servant Zarqa always signals its approach.',
+ word:'וַיַּ֒רְא',translit:'va·YAR',meaning:'and he saw',
+ verse:'וַיַּ֒רְא אֱלֹהִ֖ים אֶת־כָּל־אֲשֶׁ֣ר עָשָׂ֑ה וְהִנֵּה־ט֖וֹב מְאֹֽד׃',
+ vref:'Bereshit 1:31',vtrans:'And God saw all that He had made, and it was very good.'},
+
+{id:'munach-segol',ambiguous:true,symbol:'\u05A3',symbolWord:'וַיַּ֒רְא',group:'segol',hebrew:'מוּנַ֣ח סֶגּ֒וֹל',latin:'Munach-Segol',audio:'munach-segol.m4a',
+ type:'combination',category:'Combination · Segol Group',
+ desc:'Munach precedes Segol in its two-trope form. The <strong>Munach-Segol pair</strong> creates a gentle two-beat approach into the ornamental Segol melody — both sounds are needed to prepare the ear properly.',
+ word:'וַיַּ֒רְא',translit:'va·YAR',meaning:'and he saw',
+ verse:'וַיַּ֒רְא אֱלֹהִ֖ים אֶת־כָּל־אֲשֶׁ֣ר עָשָׂ֑ה וְהִנֵּה־ט֖וֹב מְאֹֽד׃',
+ vref:'Bereshit 1:31',vtrans:'And God saw all that He had made, and it was very good.'},
+
+{id:'zarqa-munach-segol',symbol:'\u0598',symbolWord:'אֱלֹהִ֘ים',group:'segol',hebrew:'זַרְקָ֘א מוּנַ֣ח סֶגּ֒וֹל',latin:'Zarqa-Munach-Segol',audio:'zarqa-munach-segol.m4a',
+ type:'combination',category:'Combination · Segol Group',
+ desc:'Zarqa always precedes the Munach-Segol chain. The <strong>Zarqa-Munach-Segol</strong> is one of the most distinctive three-trope phrases in the Torah — a soaring Zarqa, a steadying Munach, and the ornamental Segol landing.',
+ word:'וַיַּ֒רְא',translit:'va·YAR',meaning:'and he saw',
+ verse:'וַיַּ֒רְא אֱלֹהִ֖ים אֶת־כָּל־אֲשֶׁ֣ר עָשָׂ֑ה וְהִנֵּה־ט֖וֹב מְאֹֽד׃',
+ vref:'Bereshit 1:31',vtrans:'And God saw all that He had made, and it was very good.'},
+
+/* ── GROUP: SHALSHELET ── */
+{id:'shalshelet',symbol:'\u0593',symbolWord:'וַיִּשְׁהֶ֓א',group:'shalshelet',hebrew:'שַׁלְשֶׁלֶ֓ת',latin:'Shalshelet',audio:'shalshelet.m4a',
+ type:'disjunctive',category:'Disjunctive · Very Rare',
+ desc:'Shalshelet means "chain" — its melody is a <strong>long, wavering chain of notes</strong>, completely unique and unmistakable. It appears only <strong>four times in the entire Torah</strong>, always at moments of dramatic hesitation, ambiguity, or emotional weight. When you hear it, you will never forget it.',
+ word:'וַיִּשְׁהֶ֓א',translit:'va·yish·HEH',meaning:'and he lingered',
+ verse:'וּבְעֹד֙ הוּא֙ מַמְהֵ֔הּ וַיַּחֲזִ֣יקוּ הָאֲנָשִׁ֗ים בְּיָד֣וֹ',
+ vref:'Bereshit 19:16',vtrans:'And while he lingered, the men took hold of his hand.'},
+
+/* ── GROUP: REVIA ── */
+{id:'revia',symbol:'\u0597',symbolWord:'וְהָאָ֗רֶץ',group:'revia',hebrew:'רְבִי֗עַ',latin:'Revia',audio:'revia.m4a',
+ type:'disjunctive',category:'Disjunctive · Mid-Level',
+ desc:'Revia (meaning "fourth") is a <strong>mid-level disjunctive with a strong, rounded melody</strong>. It can appear in either half of the verse and sub-divides larger phrase units. Its melody — a sustained tone — is one of the most recognizable sounds in the entire trope system.',
+ word:'וְהָאָ֗רֶץ',translit:'ve·ha·A·retz',meaning:'and the earth',
+ verse:'וְהָאָ֗רֶץ הָיְתָ֥ה תֹ֙הוּ֙ וָבֹ֔הוּ וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם',
+ vref:'Bereshit 1:2',vtrans:'And the earth was formless and void, and darkness over the face of the deep.'},
+
+{id:'munach-revia',ambiguous:true,symbol:'\u05A3',symbolWord:'וְהָאָ֗רֶץ',group:'revia',hebrew:'מוּנַ֣ח רְבִי֗עַ',latin:'Munach-Revia',audio:'munach-revia.m4a',
+ type:'combination',category:'Combination · Revia Group',
+ desc:'Munach is again the standard servant, this time of Revia. The <strong>Munach-Revia pair</strong> is extraordinarily common throughout the Torah — wherever Revia appears in a phrase with room for a servant, Munach will precede it.',
+ word:'וְהָאָ֗רֶץ',translit:'ve·ha·A·retz',meaning:'and the earth',
+ verse:'וְהָאָ֗רֶץ הָיְתָ֥ה תֹ֙הוּ֙ וָבֹ֔הוּ וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם',
+ vref:'Bereshit 1:2',vtrans:'And the earth was formless and void, and darkness over the face of the deep.'},
+
+/* ── GROUP: ZARQA ── */
+{id:'zarqa',symbol:'\u0598',symbolWord:'נִשְׁמַ֘ע',group:'zarqa',hebrew:'זַרְקָ֘א',latin:'Zarqa',audio:'zarqa.m4a',
+ type:'disjunctive',category:'Disjunctive · Characteristic',
+ desc:'Zarqa has a <strong>leaping, arching melody</strong>. It is best known as the servant of Segol (Zarqa-Munach-Segol), but also appears independently as a mid-level disjunctive. Its name means "scattering" — the melody reflects that upward, scattered energy.',
+ word:'נִשְׁמַ֘ע',translit:'nish·MA',meaning:'we will hear/obey',
+ verse:'כֹּ֣ל אֲשֶׁר־דִּבֶּ֧ר יְהוָ֛ה נַעֲשֶׂ֖ה וְנִשְׁמָֽע׃',
+ vref:'Shemot 24:7',vtrans:'All that the Lord has spoken we will do and we will obey.'},
+
+{id:'munach-zarqa',ambiguous:true,symbol:'\u05A3',symbolWord:'נִשְׁמַ֘ע',group:'zarqa',hebrew:'מוּנַ֣ח זַרְקָ֘א',latin:'Munach-Zarqa',audio:'munach-zarqa.m4a',
+ type:'combination',category:'Combination · Zarqa Group',
+ desc:'Munach leads into Zarqa in its independent disjunctive role. The <strong>Munach-Zarqa pair</strong> creates a flowing approach into the characteristic leaping Zarqa melody.',
+ word:'נִשְׁמַ֘ע',translit:'nish·MA',meaning:'we will hear/obey',
+ verse:'כֹּ֣ל אֲשֶׁר־דִּבֶּ֧ר יְהוָ֛ה נַעֲשֶׂ֖ה וְנִשְׁמָֽע׃',
+ vref:'Shemot 24:7',vtrans:'All that the Lord has spoken we will do and we will obey.'},
+
+/* ── GROUP: PASHTA ── */
+{id:'pashta',ambiguous:true,symbol:'\u0599',symbolWord:'לָאוֹר֙',group:'pashta',hebrew:'פַּשְׁטָ֙א',latin:'Pashta',audio:'pashta.m4a',
+ type:'disjunctive',category:'Disjunctive · Mid-Level',
+ desc:'Pashta is a <strong>mid-level disjunctive</strong> with a characteristic upward-then-resolved melody. It almost always appears together with its servant Mahpakh. One visual note: Pashta looks identical to Qadma/Azla but functions differently depending on position in the phrase.',
+ word:'לָאוֹר֙',translit:'la·OR',meaning:'to the light',
+ verse:'וַיִּקְרָ֨א אֱלֹהִ֤ים לָאוֹר֙ י֔וֹם וְלַחֹ֖שֶׁךְ קָ֣רָא לָ֑יְלָה',
+ vref:'Bereshit 1:5',vtrans:'And God called the light Day, and the darkness He called Night.'},
+
+{id:'mahpakh-pashta',ambiguous:true,symbol:'\u05A4',symbolWord:'וַיִּקְרָ֨א',group:'pashta',hebrew:'מַהְפַּ֤ךְ פַּשְׁטָ֙א',latin:'Mahpakh-Pashta',audio:'mahpakh-pashta.m4a',
+ type:'combination',category:'Combination · Pashta Group',
+ desc:'Mahpakh is the standard servant of Pashta — they appear together so often that many students learn them as a pair from the start. The name Mahpakh means "overturned" and its melody has a characteristic <strong>flipping quality</strong> before resolving into the Pashta.',
+ word:'לָאוֹר֙',translit:'la·OR',meaning:'to the light',
+ verse:'וַיִּקְרָ֨א אֱלֹהִ֤ים לָאוֹר֙ י֔וֹם וְלַחֹ֖שֶׁךְ קָ֣רָא לָ֑יְלָה',
+ vref:'Bereshit 1:5',vtrans:'And God called the light Day, and the darkness He called Night.'},
+
+{id:'azla-pashta',ambiguous:true,symbol:'\u05A8',symbolWord:'וַיִּקְרָ֨א',group:'pashta',hebrew:'אַזְלָ֨א פַּשְׁטָ֙א',latin:'Azla-Pashta',audio:'azla-pashta.m4a',
+ type:'combination',category:'Combination · Pashta Group',
+ desc:'Azla (Qadma) can serve Pashta instead of Mahpakh in certain rhythmic contexts. The <strong>Azla-Pashta</strong> combination creates a slightly different approach to the accent — Azla has an advancing, forward-leaning quality distinct from Mahpakh.',
+ word:'לָאוֹר֙',translit:'la·OR',meaning:'to the light',
+ verse:'וַיִּקְרָ֨א אֱלֹהִ֤ים לָאוֹר֙ י֔וֹם וְלַחֹ֖שֶׁךְ קָ֣רָא לָ֑יְלָה',
+ vref:'Bereshit 1:5',vtrans:'And God called the light Day.'},
+
+/* ── GROUP: YETIV ── */
+{id:'yetiv',ambiguous:true,symbol:'\u059A',symbolWord:'אֶ֚ת',group:'yetiv',hebrew:'יְ֚תִיב',latin:'Yetiv',audio:'yetiv.m4a',
+ type:'disjunctive',category:'Disjunctive · Occasional',
+ desc:'Yetiv substitutes for Pashta on words where the accent falls on the <strong>first syllable</strong> (milel words). Its melody is similar to Pashta but with its own identity. Learning both prepares you for the difference in how the text\'s rhythm is conveyed.',
+ word:'אֶ֚ת',translit:'et',meaning:'(direct object marker)',
+ verse:'וַיִּקְרָ֨א אֱלֹהִ֤ים לָאוֹר֙ י֔וֹם וְלַחֹ֖שֶׁךְ קָ֣רָא לָ֑יְלָה',
+ vref:'Bereshit 1:5',vtrans:'And God called the light Day, and the darkness He called Night.'},
+
+/* ── GROUP: TEVIR ── */
+{id:'tevir',symbol:'\u059B',symbolWord:'תְה֛וֹם',group:'tevir',hebrew:'תְּבִ֛יר',latin:'Tevir',audio:'tevir.m4a',
+ type:'disjunctive',category:'Disjunctive · Mid-Level',
+ desc:'Tevir means "broken" — its melody has a <strong>characteristic falling-then-rising shape</strong>, like a broken line. It is a mid-level disjunctive that typically appears in the first half of the verse (before Etnachta), subdividing that section.',
+ word:'תְה֑וֹם',translit:'te·HOM',meaning:'the deep',
+ verse:'וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם וְר֣וּחַ אֱלֹהִ֔ים מְרַחֶ֖פֶת',
+ vref:'Bereshit 1:2',vtrans:'And darkness was over the face of the deep, and the spirit of God hovered.'},
+
+{id:'mercha-tevir',ambiguous:true,symbol:'\u05A5',symbolWord:'עַל־פְּנֵ֥י',group:'tevir',hebrew:'מֵרְכָ֥א תְּבִ֛יר',latin:'Mercha-Tevir',audio:'mercha-tevir.m4a',
+ type:'combination',category:'Combination · Tevir Group',
+ desc:'Mercha is the standard servant of Tevir. The <strong>Mercha-Tevir pair</strong> creates a smooth approach into the distinctive broken melody — a flowing run into the characteristic fall-and-rise of the Tevir. Very common in Torah reading.',
+ word:'תְה֑וֹם',translit:'te·HOM',meaning:'the deep',
+ verse:'וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם וְר֣וּחַ אֱלֹהִ֔ים מְרַחֶ֖פֶת',
+ vref:'Bereshit 1:2',vtrans:'And darkness was over the face of the deep, and the spirit of God hovered.'},
+
+{id:'darga-tevir',symbol:'\u05A7',symbolWord:'הָיְתָ֧ה',group:'tevir',hebrew:'דַּרְגָּ֧א תְּבִ֛יר',latin:'Darga-Tevir',audio:'darga-tevir.m4a',
+ type:'combination',category:'Combination · Tevir Group',
+ desc:'Darga is an alternative servant of Tevir. The <strong>Darga-Tevir pair</strong> has a different feel — Darga has its own undulating, step-like melody (the name means "step") that leads into the Tevir. More elaborate than Mercha-Tevir.',
+ word:'תְה֑וֹם',translit:'te·HOM',meaning:'the deep',
+ verse:'וְחֹ֖שֶׁךְ עַל־פְּנֵ֣י תְה֑וֹם וְר֣וּחַ אֱלֹהִ֔ים מְרַחֶ֖פֶת',
+ vref:'Bereshit 1:2',vtrans:'And darkness was over the face of the deep, and the spirit of God hovered.'},
+
+/* ── GROUP: GERESH ── */
+{id:'geresh',symbol:'\u059C',symbolWord:'כָּל֜',group:'geresh',hebrew:'גֵּרֵ֜שׁ',latin:'Geresh',audio:'geresh.m4a',
+ type:'disjunctive',category:'Disjunctive · Upper Level',
+ desc:'Geresh is an upper-level disjunctive with a <strong>soaring, ornamental melody</strong>. It appears in specific structural positions at the top of sub-phrase hierarchies. Its name means "expulsion" — the melody has a characteristic outward sweep.',
+ word:'כָּל',translit:'kol',meaning:'all',
+ verse:'כִּ֩י אֶת֙ כָּל־הָאָ֜רֶץ אֲשֶׁר־אַתָּ֤ה רֹאֶה֙ לְךָ֣ אֶתְּנֶ֔נָּה',
+ vref:'Bereshit 13:15',vtrans:'For all the land that you see, I will give to you.'},
+
+{id:'azla-geresh',ambiguous:true,symbol:'\u05A8',symbolWord:'כָּ֜ל',group:'geresh',hebrew:'אַזְלָ֨א גֵּרֵ֜שׁ',latin:'Azla-Geresh',audio:'azla-geresh.m4a',
+ type:'combination',category:'Combination · Geresh Group',
+ desc:'Azla (Qadma) is the standard servant of Geresh — they almost always appear together. The <strong>Azla-Geresh pair</strong> creates a highly distinctive double-peak phrase: Azla leaps upward, Geresh continues the ornamental ascent. When you hear this combination, the word feels highlighted and set apart.',
+ word:'כָּ֜ל',translit:'kol',meaning:'all',
+ verse:'כִּ֩י אֶת֙ כָּל־הָאָ֜רֶץ אֲשֶׁר־אַתָּ֤ה רֹאֶה֙ לְךָ֣ אֶתְּנֶ֔נָּה',
+ vref:'Bereshit 13:15',vtrans:'For all the land that you see, I will give to you.'},
+
+/* ── GROUP: GERSHAYIM ── */
+{id:'gershayim',symbol:'\u059E',symbolWord:'אֱלֹהִ֞ים',group:'gershayim',hebrew:'גֵּרְשַׁ֞יִם',latin:'Gershayim',audio:'gershayim.m4a',
+ type:'disjunctive',category:'Disjunctive · Upper Level',
+ desc:'Gershayim means "double Geresh" — and that is exactly what it is: <strong>two Geresh marks on one word</strong>, with an even more ornamental, extended melody. Less common than Geresh but equally striking, often on words of special theological importance.',
+ word:'אֱלֹהִ֞ים',translit:'e·lo·HIM',meaning:'God',
+ verse:'כִּֽי־בְצֶ֞לֶם אֱלֹהִ֗ים עָשָׂ֥ה אֶת־הָאָדָֽם׃',
+ vref:'Bereshit 9:6',vtrans:'For in the image of God He made man.'},
+
+{id:'munach-gershayim',ambiguous:true,symbol:'\u05A3',symbolWord:'אֱלֹהִ֞ים',group:'gershayim',hebrew:'מוּנַ֣ח גֵּרְשַׁ֞יִם',latin:'Munach-Gershayim',audio:'munach-gershayim.m4a',
+ type:'combination',category:'Combination · Gershayim Group',
+ desc:'Munach precedes Gershayim as its servant. The <strong>Munach-Gershayim pair</strong> builds anticipation before the extended double-ornament — Munach gently raises the voice, then Gershayim delivers its emphatic doubled melody.',
+ word:'אֱלֹהִ֞ים',translit:'e·lo·HIM',meaning:'God',
+ verse:'כִּֽי־בְצֶ֞לֶם אֱלֹהִ֗ים עָשָׂ֥ה אֶת־הָאָדָֽם׃',
+ vref:'Bereshit 9:6',vtrans:'For in the image of God He made man.'},
+
+/* ── GROUP: PAZER ── */
+{id:'pazer',symbol:'\u05A1',symbolWord:'וַיְבָ֡רֶךְ',group:'pazer',hebrew:'פָּזֵ֡ר',latin:'Pazer',audio:'pazer.m4a',
+ type:'disjunctive',category:'Disjunctive · Upper Level',
+ desc:'Pazer is a strong upper-level disjunctive with an <strong>expansive, scattered melody</strong> — the name means "scattering." It appears at the top of phrase hierarchies and creates large structural pauses. Its long, arching melody gives surrounded words a sense of weightiness and space.',
+ word:'וַיְבָ֡רֶךְ',translit:'va·ye·va·REKH',meaning:'and He blessed',
+ verse:'וַיְבָ֡רֶךְ אֹתָ֗ם אֱלֹהִ֛ים וַיֹּ֥אמֶר לָהֶ֖ם אֱלֹהִ֑ים',
+ vref:'Bereshit 1:28',vtrans:'And God blessed them, and God said to them.'},
+
+{id:'munach-pazer',ambiguous:true,symbol:'\u05A3',symbolWord:'וַיְבָ֡רֶךְ',group:'pazer',hebrew:'מוּנַ֣ח פָּזֵ֡ר',latin:'Munach-Pazer',audio:'munach-pazer.m4a',
+ type:'combination',category:'Combination · Pazer Group',
+ desc:'Munach leads into Pazer as its servant. The <strong>Munach-Pazer pair</strong> begins the upper-level phrase — Munach\'s gentle approach makes the expansive Pazer melody feel even larger by contrast.',
+ word:'וַיְבָ֡רֶךְ',translit:'va·ye·va·REKH',meaning:'and He blessed',
+ verse:'וַיְבָ֡רֶךְ אֹתָ֗ם אֱלֹהִ֛ים וַיֹּ֥אמֶר לָהֶ֖ם אֱלֹהִ֑ים',
+ vref:'Bereshit 1:28',vtrans:'And God blessed them, and God said to them.'},
+
+/* ── GROUP: QARNE PARA ── */
+{id:'qarne-para',symbol:'\u059F',symbolWord:'וָאֵרֵ֟ד',group:'qarne-para',hebrew:'קַרְנֵ֟י פָרָה',latin:'Qarne Para',audio:'qarne-para.m4a',
+ type:'disjunctive',category:'Disjunctive · Very Rare',
+ desc:'Qarne Para means "horns of a cow" — referring to its unusual visual appearance with two jutting marks. It is <strong>one of the rarest tropes in the Torah</strong>, appearing only a handful of times. Its melody is extended and highly distinctive, and hearing it is a memorable event.',
+ word:'וָאֵרֵ֟ד',translit:'va·e·RED',meaning:'and I will come down',
+ verse:'וָאֵרֵ֟ד לְהַצִּילוֹ֙ מִיַּ֣ד מִצְרַ֔יִם',
+ vref:'Shemot 3:8',vtrans:'And I have come down to deliver them from the hand of Egypt.'},
+
+/* ── GROUP: TELISHA GEDOLA ── */
+{id:'telisha-gedola',ambiguous:true,symbol:'\u05A0',symbolWord:'לְמִינֵ֠הוּ',group:'telisha-gedola',hebrew:'תְּלִישָׁ֠א גְּדוֹלָה',latin:'Telisha Gedola',audio:'telisha-gedola.m4a',
+ type:'disjunctive',category:'Disjunctive · Upper Level',
+ desc:'Telisha Gedola (large Telisha) has a <strong>soaring, arching melody</strong>. Visually it is distinctive — it appears as a curved mark at the <em>beginning</em> of a word (most tropes mark the end). Its melody has a clear ascending curve that resolves upward.',
+ word:'לְמִינֵ֠הוּ',translit:'le·mi·NEH·hu',meaning:'according to its kind',
+ verse:'וַתּוֹצֵ֨א הָאָ֜רֶץ דֶּ֠שֶׁא עֵ֣שֶׂב מַזְרִ֤יעַ זֶ֙רַע֙ לְמִינֵ֔הוּ',
+ vref:'Bereshit 1:12',vtrans:'And the earth brought forth grass, herb yielding seed according to its kind.'},
+
+{id:'munach-telisha-gedola',ambiguous:true,ambiguous:true,symbol:'\u05A3',symbolWord:'לְמִינֵ֠הוּ',group:'telisha-gedola',hebrew:'מוּנַ֣ח תְּלִישָׁ֠א גְּדוֹלָה',latin:'Munach-Telisha Gedola',audio:'munach-telisha-gedola.m4a',
+ type:'combination',category:'Combination · Telisha Gedola Group',
+ desc:'Munach precedes Telisha Gedola as its servant. The <strong>Munach-Telisha Gedola pair</strong> creates a two-beat approach into the ascending Telisha — Munach grounds the phrase before the upward soar.',
+ word:'לְמִינֵ֠הוּ',translit:'le·mi·NEH·hu',meaning:'according to its kind',
+ verse:'וַתּוֹצֵ֨א הָאָ֜רֶץ דֶּ֠שֶׁא עֵ֣שֶׂב מַזְרִ֤יעַ זֶ֙רַע֙ לְמִינֵ֔הוּ',
+ vref:'Bereshit 1:12',vtrans:'And the earth brought forth grass, herb yielding seed according to its kind.'},
+
+/* ── GROUP: LEGARMEH ── */
+{id:'legarmeh',ambiguous:true,symbol:'\u05A3',symbolWord:'רוּחַ֢',group:'legarmeh',hebrew:'לְגַרְמֵ֣הּ',latin:'Legarmeh',audio:'legarmeh.m4a',
+ type:'disjunctive',category:'Disjunctive · Isolated',
+ desc:'Legarmeh means "by itself" — it is a <strong>Munach mark that functions as a disjunctive</strong> because it is followed by a vertical bar (paseq ׀). This isolated Munach takes on its own melodic identity, distinct from the conjunctive Munach. A fascinating case of context changing function.',
+ word:'רוּחַ֢',translit:'RU·ach',meaning:'spirit / wind',
+ verse:'וְר֣וּחַ אֱלֹהִ֔ים מְרַחֶ֖פֶת עַל־פְּנֵ֥י הַמָּֽיִם׃',
+ vref:'Bereshit 1:2',vtrans:'And the spirit of God hovered over the face of the waters.'},
+
+{id:'mercha-legarmeh',ambiguous:true,symbol:'\u05A5',symbolWord:'רוּחַ֢',group:'legarmeh',hebrew:'מֵרְכָ֥א לְגַרְמֵ֣הּ',latin:'Mercha-Legarmeh',audio:'mercha-legarmeh.m4a',
+ type:'combination',category:'Combination · Legarmeh Group',
+ desc:'Mercha serves Legarmeh in the standard servant pattern. The <strong>Mercha-Legarmeh pair</strong> creates a flowing approach into the isolated Legarmeh, signaling its disjunctive function to the ear.',
+ word:'רוּחַ֢',translit:'RU·ach',meaning:'spirit / wind',
+ verse:'וְר֣וּחַ אֱלֹהִ֔ים מְרַחֶ֖פֶת עַל־פְּנֵ֥י הַמָּֽיִם׃',
+ vref:'Bereshit 1:2',vtrans:'And the spirit of God hovered over the face of the waters.'},
+
+/* ── GROUP: STANDALONE CONJUNCTIVES ── */
+{id:'munach',ambiguous:true,symbol:'\u05A3',symbolWord:'בָּרָ֣א',group:'conjunctives',hebrew:'מוּנַ֣ח',latin:'Munach',audio:'munach.m4a',
+ type:'conjunctive',category:'Conjunctive · Most Frequent',
+ desc:'Munach is the <strong>most common trope in the Torah</strong> — it appears more than any other sign. As a conjunctive it connects words while flowing toward the next disjunctive. It serves Etnachta, Silluq, Zakef, Revia, Segol, and others. The backbone of the entire system.',
+ word:'בָּרָ֣א',translit:'ba·RA',meaning:'created',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created the heavens and the earth.'},
+
+{id:'mercha',ambiguous:true,symbol:'\u05A5',symbolWord:'אֵ֥ת',group:'conjunctives',hebrew:'מֵרְכָ֥א',latin:'Mercha',audio:'mercha.m4a',
+ type:'conjunctive',category:'Conjunctive · Very Frequent',
+ desc:'Mercha is the second most frequent conjunctive. It primarily serves <strong>Tipcha and Silluq</strong>, creating the characteristic smooth approach to those accents. Its name means "lengthening" — the melody extends the phrase toward its goal.',
+ word:'אֵ֥ת',translit:'et',meaning:'(direct object marker)',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים אֵ֥ת הַשָּׁמַ֖יִם וְאֵ֥ת הָאָֽרֶץ׃',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created the heavens and the earth.'},
+
+{id:'mahpakh',ambiguous:true,symbol:'\u05A4',symbolWord:'וַיִּקְרָ֨א',group:'conjunctives',hebrew:'מַהְפַּ֤ךְ',latin:'Mahpakh',audio:'mahpakh.m4a',
+ type:'conjunctive',category:'Conjunctive · Frequent',
+ desc:'Mahpakh (meaning "overturned") primarily serves <strong>Pashta</strong>. Its melody has a characteristic flipping, inverted quality — the sound turns back on itself. Together Mahpakh-Pashta is such a common pair that most readers learn them as a unit.',
+ word:'וַיִּקְרָ֨א',translit:'va·yiq·RA',meaning:'and he called',
+ verse:'וַיִּקְרָ֨א אֱלֹהִ֤ים לָאוֹר֙ י֔וֹם',
+ vref:'Bereshit 1:5',vtrans:'And God called the light Day.'},
+
+{id:'darga',symbol:'\u05A7',symbolWord:'הָיְתָ֧ה',group:'conjunctives',hebrew:'דַּרְגָּ֧א',latin:'Darga',audio:'darga.m4a',
+ type:'conjunctive',category:'Conjunctive · Frequent',
+ desc:'Darga primarily serves <strong>Tevir</strong> and creates the Darga-Tevir combination. The name means "step" or "degree" — its melody has an undulating, step-like quality, like climbing a staircase toward the Tevir.',
+ word:'הָיְתָ֧ה',translit:'ha·ye·TAH',meaning:'was',
+ verse:'וְהָאָ֗רֶץ הָיְתָ֥ה תֹ֙הוּ֙ וָבֹ֔הוּ',
+ vref:'Bereshit 1:2',vtrans:'And the earth was formless and void.'},
+
+{id:'azla',ambiguous:true,symbol:'\u05A8',symbolWord:'וַיִּקְרָ֨א',group:'conjunctives',hebrew:'אַזְלָ֨א',latin:'Azla / Qadma',audio:'azla.m4a',
+ type:'conjunctive',category:'Conjunctive · Frequent',
+ desc:'Azla (also called Qadma, "advancing") primarily serves <strong>Geresh and Pashta</strong>. Its melody has a forward-leaning, advancing quality. It is also the first member of the Azla-Geresh pair — one of the most distinctive combinations in the Torah.',
+ word:'וַיִּקְרָ֨א',translit:'va·yiq·RA',meaning:'and he called',
+ verse:'וַיִּקְרָ֨א אֱלֹהִ֤ים לָאוֹר֙ י֔וֹם',
+ vref:'Bereshit 1:5',vtrans:'And God called the light Day.'},
+
+{id:'telisha-ketana',ambiguous:true,symbol:'\u05A9',symbolWord:'לְמִינֵ֩הוּ',group:'conjunctives',hebrew:'תְּלִישָׁא קְטַנָּ֩ה',latin:'Telisha Ketana',audio:'telisha-ketana.m4a',
+ type:'conjunctive',category:'Conjunctive · Occasional',
+ desc:'Telisha Ketana (small Telisha) is the conjunctive counterpart to Telisha Gedola. It serves upper-level disjunctives and has a small ascending curve — less dramatic than its larger counterpart but sharing the same upward character.',
+ word:'לְמִינֵ֩הוּ',translit:'le·mi·NEH·hu',meaning:'according to its kind',
+ verse:'וַתּוֹצֵ֨א הָאָ֜רֶץ דֶּ֠שֶׁא עֵ֣שֶׂב מַזְרִ֤יעַ זֶ֙רַע֙ לְמִינֵ֔הוּ',
+ vref:'Bereshit 1:12',vtrans:'And the earth brought forth herb yielding seed according to its kind.'},
+
+{id:'mercha-kefula',symbol:'\u05A6',symbolWord:'בְּרֵאשִׁ֖ית',group:'conjunctives',hebrew:'מֵרְכָ֥א כְּפוּלָ֦ה',latin:'Mercha Kefula',audio:'mercha-kefula.m4a',
+ type:'conjunctive',category:'Conjunctive · Rare',
+ desc:'Mercha Kefula (double Mercha) is a rare conjunctive that appears as two Mercha marks side by side. It has a <strong>distinctive doubled melody</strong>. It appears only in certain contexts — but when it does, its sound is unmistakably elongated.',
+ word:'בְּרֵאשִׁ֖ית',translit:'be·re·SHIT',meaning:'in the beginning',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created.'},
+
+{id:'galgal',symbol:'\u05AA',symbolWord:'בְּרֵאשִׁ֖ית',group:'conjunctives',hebrew:'גַּלְגַּ֪ל',latin:'Galgal',audio:'galgal.m4a',
+ type:'conjunctive',category:'Conjunctive · Rare',
+ desc:'Galgal (meaning "wheel" or "circle", also called Yerah Ben Yomo) is a rare conjunctive with a rolling, circular quality to its melody. It appears infrequently in the Torah but its sound is distinctive and memorable when encountered.',
+ word:'בְּרֵאשִׁ֖ית',translit:'be·re·SHIT',meaning:'in the beginning',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created.'},
+
+{id:'mayela',ambiguous:true,symbol:'\u05A5',symbolWord:'בְּרֵאשִׁ֖ית',group:'conjunctives',hebrew:'מַיְלָ֥א',latin:'Mayela',audio:'mayela.m4a',
+ type:'conjunctive',category:'Conjunctive · Rare',
+ desc:'Mayela is a rare conjunctive trope that appears in specific melodic contexts. In some traditions it is considered a variant of Mercha. Its melody has a characteristic shape that completes the full picture of the conjunctive system.',
+ word:'בְּרֵאשִׁ֖ית',translit:'be·re·SHIT',meaning:'in the beginning',
+ verse:'בְּרֵאשִׁ֖ית בָּרָ֣א אֱלֹהִ֑ים',
+ vref:'Bereshit 1:1',vtrans:'In the beginning God created.'},
+
+]; // end UNITS
+
+
+/* ══════════════════════════════════════════
+   STATE & PERSISTENCE
+══════════════════════════════════════════ */
+var state = { learnedUnits:[], xp:0, streak:1, lastDate:'', currentUnitId:null };
+
+function saveState() { try { localStorage.setItem('teamim_v1', JSON.stringify(state)); } catch(e){} }
+function loadState() {
+  try {
+    var s = localStorage.getItem('teamim_v1');
+    if (s) { var p = JSON.parse(s); if (p && p.learnedUnits) state = p; }
+  } catch(e){}
+  updateStreak();
+}
+function updateStreak() {
+  var today = new Date().toDateString();
+  if (!state.lastDate) { state.streak = 1; }
+  else if (state.lastDate !== today) {
+    var yest = new Date(Date.now() - 86400000).toDateString();
+    state.streak = (state.lastDate === yest) ? state.streak + 1 : 1;
+  }
+  state.lastDate = today;
+  saveState();
+}
+
+/* ══════════════════════════════════════════
+   GROUPS (computed from UNITS)
+══════════════════════════════════════════ */
+var GROUPS = [];
+var _gmap = {};
+UNITS.forEach(function(u, i) {
+  if (!_gmap[u.group]) {
+    var g = { id:u.group, units:[] };
+    _gmap[u.group] = g;
+    GROUPS.push(g);
+  }
+  _gmap[u.group].units.push(i);
+});
+
+/* ══════════════════════════════════════════
+   AVAILABILITY
+   Sequential: unit N is available when unit N-1 is learned (or N=0)
+══════════════════════════════════════════ */
+function isAvailable(idx) {
+  if (idx === 0) return true;
+  return state.learnedUnits.indexOf(UNITS[idx-1].id) !== -1;
+}
+function isLearned(id) { return state.learnedUnits.indexOf(id) !== -1; }
+
+function getGroupStatus(group) {
+  var indices = group.units;
+  var learned = indices.filter(function(i){ return isLearned(UNITS[i].id); }).length;
+  if (learned === indices.length) return 'complete';
+  if (learned > 0) return 'in-progress';
+  if (isAvailable(indices[0])) return 'available';
+  return 'locked';
+}
+
+function getFirstAvailableInGroup(group) {
+  for (var j=0; j<group.units.length; j++) {
+    var idx = group.units[j];
+    if (isAvailable(idx) && !isLearned(UNITS[idx].id)) return idx;
+  }
+  return group.units[0]; // fallback to first
+}
+
+/* ══════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════ */
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById(id).classList.add('active');
+}
+
+function goHome() { renderHome(); showScreen('home'); }
+function goToLearnFromGroup(groupId) { renderLearn(); showScreen('learn'); startGroup(groupId); }
+function goToReference() { renderReference(); showScreen('reference'); }
+
+function startGroup(groupId) {
+  var group = _gmap[groupId];
+  if (!group) return;
+  var status = getGroupStatus(group);
+  if (status === 'locked') return;
+  var idx = getFirstAvailableInGroup(group);
+  startUnit(idx);
+}
+
+function startUnit(idx) {
+  if (idx < 0 || idx >= UNITS.length) return;
+  state.currentUnitId = UNITS[idx].id;
+  saveState();
+  renderMeet(UNITS[idx]);
+  showScreen('meet');
+}
+
+/* ══════════════════════════════════════════
+   AUDIO
+══════════════════════════════════════════ */
+var _currentAudioFile = null;
+
+function playAudio(filename, btn) {
+  _currentAudioFile = filename;
+  var a = new Audio('audio/' + filename);
+  a.play().catch(function(e){ console.warn('Audio:', e.message); });
+  if (btn) {
+    btn.classList.add('playing');
+    setTimeout(function(){ btn.classList.remove('playing'); }, 900);
+  }
+}
+
+function quizPlayAudio() {
+  var btn = document.getElementById('quiz-audio-btn');
+  if (_currentAudioFile) playAudio(_currentAudioFile, btn);
+}
+
+
+
+/* ══════════════════════════════════════════
+   DRILL MODE — sound/symbol/name random quiz
+══════════════════════════════════════════ */
+var dmState = { correct:0, streak:0, total:0, currentUnit:null, currentType:null };
+
+function goToDrillMode() {
+  var available = UNITS.filter(function(u, i){
+    return isLearned(u.id) || isAvailable(i);
+  });
+  if (available.length === 0) { alert('Learn at least one trope first!'); return; }
+  dmState.correct = 0; dmState.streak = 0; dmState.total = 0;
+  document.getElementById('dm-correct').textContent = '0';
+  document.getElementById('dm-streak').textContent = '0';
+  document.getElementById('dm-total').textContent = '0';
+  startSymbolMode();  // reset symbol pool too
+  showScreen('drill-mode');
+  nextDrillQuestion();
+}
+
+function nextDrillQuestion() {
+  // Pick random unlocked unit
+  var pool = UNITS.filter(function(u, i){ return isLearned(u.id) || isAvailable(i); });
+  var unit = pool[Math.floor(Math.random() * pool.length)];
+  // Pick random question type: 0=sound→name, 1=symbol→sound, 2=word→name
+  var type = Math.floor(Math.random() * 3);
+  dmState.currentUnit = unit;
+  dmState.currentType = type;
+  renderDrillQuestion(unit, type);
+}
+
+function renderDrillQuestion(unit, type) {
+  var qArea = document.getElementById('dm-question');
+  var badge = document.getElementById('dm-type-badge');
+  var opts = document.getElementById('dm-opts');
+  qArea.innerHTML = '<div class="dm-type-badge" id="dm-type-badge"></div>';
+  opts.innerHTML = '';
+
+  var distractors = getDistractors(unit, 3);
+  var choices = shuffleArr([unit].concat(distractors));
+
+  if (type === 0) {
+    // ── SOUND → NAME ──
+    // Show play button; options are trope names
+    document.getElementById('dm-type-badge').textContent = 'HEAR · NAME THE TROPE';
+    var btn = document.createElement('button');
+    btn.className = 'dm-audio-btn';
+    btn.textContent = '▶';
+    btn.onclick = function(){ playAudio(unit.audio, btn); };
+    qArea.appendChild(btn);
+
+    choices.forEach(function(opt) {
+      var b = document.createElement('button');
+      b.className = 'dm-opt';
+      b.innerHTML = '<span class="dm-opt-heb">' + opt.hebrew + '</span>';
+      b._isCorrect = (opt.id === unit.id);
+      b.onclick = function(){ handleDrillAnswer(b, opt.id === unit.id); };
+      opts.appendChild(b);
+    });
+
+  } else if (type === 1) {
+    // ── SYMBOL → SOUND ──
+    // Show Hebrew word; options are play buttons
+    document.getElementById('dm-type-badge').textContent = 'SEE · FIND THE SOUND';
+    var wCard = document.createElement('div');
+    wCard.className = 'dm-word-card';
+    var wEl = document.createElement('div');
+    wEl.className = 'dm-word';
+    wEl.textContent = unit.symbolWord;
+    wCard.appendChild(wEl);
+    qArea.appendChild(wCard);
+
+    choices.forEach(function(opt) {
+      var b = document.createElement('button');
+      b.className = 'dm-opt';
+      var playBtn = document.createElement('div');
+      playBtn.className = 'dm-opt-play';
+      playBtn.textContent = '▶';
+      playBtn.onclick = function(e){
+        e.stopPropagation();
+        document.querySelectorAll('.dm-opt-play').forEach(function(p){ p.classList.remove('playing'); p.textContent='▶'; });
+        playAudio(opt.audio, playBtn);
+        playBtn.classList.add('playing');
+        playBtn.textContent = '♪';
+        setTimeout(function(){ playBtn.classList.remove('playing'); playBtn.textContent='▶'; }, 2000);
+      };
+      b.appendChild(playBtn);
+      b._isCorrect = (opt.id === unit.id);
+      b.onclick = function(){ handleDrillAnswer(b, opt.id === unit.id); };
+      opts.appendChild(b);
+    });
+
+  } else {
+    // ── NAME → FIND THE WORD ──
+    document.getElementById('dm-type-badge').textContent = 'FIND THE WORD';
+    var nameCard = document.createElement('div');
+    nameCard.className = 'dm-word-card';
+    nameCard.style.textAlign = 'center';
+    var d1 = document.createElement('div');
+    d1.style.fontFamily = "'SBL Hebrew',serif";
+    d1.style.fontSize = '42px'; d1.style.color = '#000'; d1.style.fontWeight = '700';
+    d1.textContent = unit.hebrew;
+    var d2 = document.createElement('div');
+    d2.style.fontFamily = "'Cinzel',serif";
+    d2.style.fontSize = '11px'; d2.style.letterSpacing = '2px';
+    d2.style.color = 'rgba(0,0,0,.5)'; d2.style.marginTop = '6px'; d2.style.direction = 'ltr';
+    d2.textContent = unit.latin;
+    nameCard.appendChild(d1); nameCard.appendChild(d2);
+    qArea.appendChild(nameCard);
+
+    choices.forEach(function(opt) {
+      var b = document.createElement('button');
+      b.className = 'dm-opt';
+      b.style.padding = '16px 10px';
+      var word = document.createElement('span');
+      word.style.fontFamily = "'SBL Hebrew','Noto Serif Hebrew',serif";
+      word.style.fontSize = '28px';
+      word.style.color = '#000';
+      word.style.direction = 'rtl';
+      word.textContent = opt.symbolWord;
+      b.appendChild(word);
+      b._isCorrect = (opt.id === unit.id);
+      b.onclick = function(){ handleDrillAnswer(b, opt.id === unit.id); };
+      opts.appendChild(b);
+    });
+  }
+}
+
+function handleDrillAnswer(btn, isCorrect) {
+  // Lock all buttons
+  document.querySelectorAll('#dm-opts .dm-opt').forEach(function(b){
+    b.onclick = null; b.style.opacity = '0.45';
+  });
+  btn.style.opacity = '1';
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  dmState.total++;
+  document.getElementById('dm-total').textContent = dmState.total;
+
+  if (isCorrect) {
+    dmState.correct++;
+    dmState.streak++;
+    document.getElementById('dm-correct').textContent = dmState.correct;
+    document.getElementById('dm-streak').textContent = dmState.streak;
+    setTimeout(nextDrillQuestion, 600);
+  } else {
+    dmState.streak = 0;
+    document.getElementById('dm-streak').textContent = '0';
+    // Reveal correct
+    // reveal correct — re-render with correct marked (handled by opacity on all but correct)
+    document.querySelectorAll('#dm-opts .dm-opt').forEach(function(b){
+      if (b._isCorrect) { b.style.opacity = '1'; b.classList.add('correct'); }
+    });
+    setTimeout(nextDrillQuestion, 1600);
+  }
+}
+
+/* ══════════════════════════════════════════
+   NAVIGATION — MODE CHOOSER
+══════════════════════════════════════════ */
+function goToLearn() {
+  renderLearn();
+  showScreen('learn');
+}
+
+function goToSymbolMode() {
+  var available = UNITS.filter(function(u){
+    return isLearned(u.id) || isAvailable(UNITS.indexOf(u));
+  });
+  if (available.length === 0) {
+    alert('Learn at least one trope first!');
+    return;
+  }
+  startSymbolMode();
+  showScreen('symbol-mode');
+}
+
+/* ══════════════════════════════════════════
+   RENDER: LEARN SCREEN (Journey Map)
+══════════════════════════════════════════ */
+function renderLearn() {
+  renderHomeGrid();
+}
+
+/* ══════════════════════════════════════════
+   SYMBOL MODE — standalone quiz loop
+══════════════════════════════════════════ */
+var smState = { correct:0, streak:0, queue:[], currentUnit:null };
+
+function startSymbolMode() {
+  // Build queue from all unlocked units, shuffled
+  smState.correct = 0;
+  smState.streak = 0;
+  smState.queue = shuffleArr(UNITS.filter(function(u, i){
+    return isLearned(u.id) || isAvailable(i);
+  }));
+  document.getElementById('sm-correct').textContent = '0';
+  document.getElementById('sm-streak').textContent = '0';
+  document.getElementById('sm-remaining').textContent = smState.queue.length;
+  nextSymbolQuestion();
+}
+
+function nextSymbolQuestion() {
+  if (smState.queue.length === 0) {
+    // Refill and continue
+    smState.queue = shuffleArr(UNITS.filter(function(u, i){
+      return isLearned(u.id) || isAvailable(i);
+    }));
+  }
+  smState.currentUnit = smState.queue.shift();
+  document.getElementById('sm-remaining').textContent = smState.queue.length;
+  renderSmQuestion(smState.currentUnit);
+}
+
+function renderSmQuestion(unit) {
+  var symEl = document.getElementById('sm-symbol');
+  if (unit.ambiguous) {
+    symEl.style.fontSize = '44px';
+    symEl.style.letterSpacing = '4px';
+    symEl.style.color = 'var(--text)';
+    symEl.textContent = unit.symbolWord;
+  } else {
+    symEl.style.fontSize = '120px';
+    symEl.style.letterSpacing = '0';
+    symEl.innerHTML =
+      '<span style="color:var(--text)">\u05D0</span>' +
+      '<span style="color:var(--gold);text-shadow:0 0 30px var(--gold-glow)">' +
+      unit.symbol + '</span>';
+  }
+
+  // Options
+  var distractors = getDistractors(unit, 3);
+  var opts = shuffleArr([unit].concat(distractors));
+  var container = document.getElementById('sm-opts');
+  container.innerHTML = '';
+  opts.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'sq-opt';
+    btn.innerHTML = '<span class="sq-opt-heb">' + opt.hebrew + '</span>';
+    btn.onclick = function(){ handleSmAnswer(btn, opt.id === unit.id, unit); };
+    container.appendChild(btn);
+  });
+}
+
+function handleSmAnswer(btn, isCorrect, unit) {
+  document.querySelectorAll('#sm-opts .sq-opt').forEach(function(b){
+    b.onclick = null; b.style.opacity = '0.45';
+  });
+  btn.style.opacity = '1';
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  if (isCorrect) {
+    smState.correct++;
+    smState.streak++;
+    document.getElementById('sm-correct').textContent = smState.correct;
+    document.getElementById('sm-streak').textContent = smState.streak;
+    setTimeout(nextSymbolQuestion, 600);
+  } else {
+    smState.streak = 0;
+    document.getElementById('sm-streak').textContent = '0';
+    // Show correct
+    document.querySelectorAll('#sm-opts .sq-opt').forEach(function(b){
+      if (b.querySelector('.sq-opt-lat').textContent === unit.latin) {
+        b.style.opacity = '1';
+        b.classList.add('correct');
+      }
+    });
+    setTimeout(nextSymbolQuestion, 1600);
+  }
+}
+
+/* ══════════════════════════════════════════
+   RENDER: HOME
+══════════════════════════════════════════ */
+function renderHomeGrid() {
+  var scroll = document.getElementById('groups-scroll');
+  scroll.innerHTML = '';
+
+  UNITS.forEach(function(unit, i) {
+    var learned = isLearned(unit.id);
+    var available = isAvailable(i);
+    var status = learned ? 'complete' : available ? 'available' : 'locked';
+
+    var card = document.createElement('div');
+    card.className = 'group-card ' + status;
+    if (status !== 'locked') {
+      card.onclick = (function(u){ return function(){ renderMeet(u); showScreen('meet'); }; })(unit);
+    }
+
+    // Step number
+    var num = document.createElement('div');
+    num.className = 'gc-orb';
+    num.style.fontSize = '13px';
+    num.style.fontFamily = "'Cinzel',serif";
+    num.textContent = (i + 1);
+    card.appendChild(num);
+
+    // Info
+    var info = document.createElement('div');
+    info.className = 'gc-info';
+
+    var nameRow = document.createElement('div');
+    nameRow.className = 'gc-name-row';
+    var heb = document.createElement('span');
+    heb.className = 'gc-heb';
+    heb.textContent = unit.hebrew;
+    var lat = document.createElement('span');
+    lat.className = 'gc-lat';
+    lat.textContent = unit.latin;
+    nameRow.appendChild(heb);
+    nameRow.appendChild(lat);
+    info.appendChild(nameRow);
+
+    var st = document.createElement('div');
+    st.className = 'gc-status';
+    if (learned) st.textContent = '✓ Learned';
+    else if (available) st.textContent = unit.type === 'combination' ? 'Combination · Ready' : 'Ready to learn';
+    else st.textContent = 'Locked';
+    info.appendChild(st);
+
+    card.appendChild(info);
+
+    if (status !== 'locked') {
+      var arr = document.createElement('div');
+      arr.className = 'gc-arrow';
+      arr.textContent = learned ? '★' : '›';
+      card.appendChild(arr);
+    }
+
+    scroll.appendChild(card);
+  });
+}
+
+function renderHome() {
+  document.getElementById('stat-streak').textContent = state.streak;
+  document.getElementById('stat-learned').textContent = state.learnedUnits.length;
+  document.getElementById('stat-xp').textContent = state.xp;
+  var totalUnits = UNITS.length;
+  var learnedCount = state.learnedUnits.length;
+  var pct = Math.round((learnedCount / totalUnits) * 100);
+  document.getElementById('xp-fill').style.width = pct + '%';
+  document.getElementById('xp-val-txt').textContent = learnedCount + ' / ' + totalUnits + ' tropes';
+  // Update symbol mode card — locked until at least one trope available
+  var smCard = document.getElementById('mode-symbols-card');
+  var available = UNITS.filter(function(u, i){ return isLearned(u.id) || isAvailable(i); });
+  if (available.length > 0) {
+    smCard.classList.remove('locked');
+  } else {
+    smCard.classList.add('locked');
+    smCard.onclick = null;
+  }
+}
+
+/* ══════════════════════════════════════════
+   RENDER: MEET
+══════════════════════════════════════════ */
+function renderMeet(unit) {
+  var idx = UNITS.findIndex(function(u){ return u.id === unit.id; });
+  // Progress through this group
+  var group = _gmap[unit.group];
+  var posInGroup = group.units.indexOf(idx);
+
+  // NAV
+  var nav = document.getElementById('meet-nav');
+  nav.innerHTML = '';
+  var back = document.createElement('button');
+  back.className = 'back-btn back-light';
+  back.textContent = '←';
+  back.onclick = function(){ renderLearn(); showScreen('learn'); };
+  var badge = document.createElement('span');
+  badge.className = 'nav-badge nav-badge-light';
+  badge.textContent = unit.latin + (unit.type === 'combination' ? ' ·  combination' : '');
+  var pdots = document.createElement('div');
+  pdots.className = 'pdots';
+  ['active','','',''].forEach(function(cls){
+    var pd = document.createElement('div');
+    pd.className = 'pd' + (cls?' '+cls:'');
+    pdots.appendChild(pd);
+  });
+  nav.appendChild(back); nav.appendChild(badge); nav.appendChild(pdots);
+
+  // BODY
+  var body = document.getElementById('meet-body');
+  body.innerHTML = '';
+
+  // If unit has multiple examples, show carousel; otherwise single card
+  if (unit.examples && unit.examples.length > 0) {
+    var exWrap = document.createElement('div');
+    exWrap.className = 'examples-wrap fade-up';
+    var exLbl = document.createElement('div');
+    exLbl.className = 'examples-label';
+    exLbl.textContent = 'Swipe to see all variants →';
+    exWrap.appendChild(exLbl);
+    var exScroll = document.createElement('div');
+    exScroll.className = 'examples-scroll';
+    unit.examples.forEach(function(ex, ei) {
+      var card = document.createElement('div');
+      card.className = 'ex-card' + (ei===0?' active-ex':'');
+      card.innerHTML =
+        '<div class="ex-label">' + ex.label + '</div>' +
+        '<span class="ex-heb">' + ex.word + '</span>' +
+        '<div class="ex-translit">' + ex.translit + '</div>' +
+        '<div class="ex-meaning">' + ex.meaning + '</div>' +
+        '<div class="ex-ref">' + ex.vref + '</div>';
+      exScroll.appendChild(card);
+    });
+    exWrap.appendChild(exScroll);
+    body.appendChild(exWrap);
+
+    // Musical notation image block
+    if (unit.notationImg) {
+      var notWrap = document.createElement('div');
+      notWrap.className = 'notation-wrap fade-up';
+      notWrap.style.animationDelay = '0.25s';
+      var notTitle = document.createElement('div');
+      notTitle.className = 'notation-title';
+      notTitle.textContent = 'MUSICAL NOTATION';
+      notWrap.appendChild(notTitle);
+      var img = document.createElement('img');
+      img.className = 'notation-img';
+      img.src = unit.notationImg;
+      img.alt = 'Musical notation';
+      notWrap.appendChild(img);
+      body.appendChild(notWrap);
+    }
+
+
+  } else {
+    var wordCard = document.createElement('div');
+    wordCard.className = 'word-card fade-up';
+    wordCard.innerHTML =
+      '<div class="wc-ctx">' + unit.vref + ' · Example</div>' +
+      '<div class="wc-heb">' + unit.word + '</div>' +
+      '<div class="wc-translit">' + unit.translit + '</div>' +
+      '<div class="wc-trans">' + unit.meaning + '</div>';
+    body.appendChild(wordCard);
+  }
+
+  var audioWrap = document.createElement('div');
+  audioWrap.className = 'audio-wrap';
+  var audioBtn = document.createElement('button');
+  audioBtn.className = 'audio-btn';
+  audioBtn.textContent = '▶';
+  audioBtn.onclick = function(){ playAudio(unit.audio, audioBtn); };
+  var audioLbl = document.createElement('div');
+  audioLbl.className = 'audio-lbl';
+  audioLbl.textContent = 'Tap to hear';
+  audioWrap.appendChild(audioBtn);
+  audioWrap.appendChild(audioLbl);
+  body.appendChild(audioWrap);
+
+  var info = document.createElement('div');
+  info.className = 'info-card fade-up';
+  info.style.animationDelay = '0.12s';
+  info.innerHTML =
+    '<div class="ic-namebar"><span class="ic-heb">' + unit.hebrew + '</span><span class="ic-lat">' + unit.latin + '</span></div>' +
+    '<div class="ic-badge">' + unit.category + '</div>' +
+    '<p class="ic-desc">' + unit.desc + '</p>';
+  body.appendChild(info);
+
+  // FOOT
+  var foot = document.getElementById('meet-foot');
+  foot.innerHTML = '';
+  var btn = document.createElement('button');
+  btn.className = 'btn-p';
+  btn.innerHTML = 'הַבָּאתִי &mdash; Ready to quiz →';
+  btn.onclick = function(){ renderQuiz(unit); showScreen('quiz'); };
+  foot.appendChild(btn);
+}
+
+/* ══════════════════════════════════════════
+   RENDER: QUIZ
+══════════════════════════════════════════ */
+function getDistractors(unit, count) {
+  // Prefer same group, then same type, then anything
+  var pool = UNITS.filter(function(u){ return u.id !== unit.id && u.group === unit.group; });
+  if (pool.length < count) {
+    var more = UNITS.filter(function(u){ return u.id !== unit.id && u.type === unit.type && pool.indexOf(u) === -1; });
+    pool = pool.concat(more);
+  }
+  if (pool.length < count) {
+    var rest = UNITS.filter(function(u){ return u.id !== unit.id && pool.indexOf(u) === -1; });
+    pool = pool.concat(rest);
+  }
+  return shuffleArr(pool).slice(0, count);
+}
+
+function shuffleArr(arr) { return arr.slice().sort(function(){ return Math.random() - 0.5; }); }
+
+function renderQuiz(unit) {
+  _currentAudioFile = unit.audio;
+
+  // NAV
+  var idx = UNITS.findIndex(function(u){ return u.id === unit.id; });
+  var nav = document.getElementById('quiz-nav');
+  nav.innerHTML = '';
+  var back = document.createElement('button');
+  back.className = 'back-btn back-dark';
+  back.textContent = '←';
+  back.onclick = function(){ renderMeet(unit); showScreen('meet'); };
+  var badge = document.createElement('span');
+  badge.className = 'nav-badge nav-badge-dark';
+  badge.textContent = 'Quiz · ' + unit.latin;
+  var pdots = document.createElement('div');
+  pdots.className = 'pdots';
+  ['done','active','',''].forEach(function(cls){
+    var pd = document.createElement('div');
+    pd.className = 'pd' + (cls?' '+cls:'');
+    pdots.appendChild(pd);
+  });
+  nav.appendChild(back); nav.appendChild(badge); nav.appendChild(pdots);
+
+  // Question text
+  document.getElementById('quiz-q').textContent =
+    unit.type === 'combination' ? 'Listen and identify' : 'Listen and identify';
+  document.getElementById('quiz-sub').textContent =
+    unit.type === 'combination' ? 'Which combination do you hear?' : 'Which trope do you hear?';
+
+  // Build options
+  var distractors = getDistractors(unit, 3);
+  var opts = shuffleArr([unit].concat(distractors));
+
+  var container = document.getElementById('quiz-opts');
+  container.innerHTML = '';
+  opts.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = '<span class="opt-heb">' + opt.hebrew + '</span>';
+    btn._isCorrect = (opt.id === unit.id);
+    btn.onclick = function(){ handleAnswer(btn, opt.id === unit.id, unit); };
+    container.appendChild(btn);
+  });
+}
+
+/* ══════════════════════════════════════════
+   QUIZ ANSWER
+══════════════════════════════════════════ */
+function handleAnswer(btn, isCorrect, unit) {
+  // Disable all buttons
+  document.querySelectorAll('.opt').forEach(function(b){ b.onclick = null; b.style.opacity='0.45'; });
+  btn.style.opacity = '1';
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+
+  if (isCorrect) {
+    setTimeout(function(){
+      renderQuizS2(unit);
+      showScreen('quiz-s2');
+    }, 700);
+  } else {
+    // Reveal correct answer
+    document.querySelectorAll('.opt').forEach(function(b){
+      if (b._isCorrect) {
+        b.style.opacity = '1';
+        b.classList.add('correct');
+      }
+    });
+    // Re-enable after delay
+    setTimeout(function(){
+      document.querySelectorAll('.opt').forEach(function(b){
+        b.classList.remove('correct','wrong');
+        b.style.opacity = '1';
+        b.onclick = function(){ handleAnswer(b, b._isCorrect, unit); };
+      });
+    }, 1600);
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   RENDER: SYMBOL QUIZ
+   Step 3 — see the mark, name the trope
+══════════════════════════════════════════ */
+function renderSymbolQuiz(unit) {
+  // NAV
+  var nav = document.getElementById('quiz2-nav');
+  nav.innerHTML = '';
+  var back = document.createElement('button');
+  back.className = 'back-btn back-light';
+  back.textContent = '←';
+  back.onclick = function(){ renderQuiz(unit); showScreen('quiz'); };
+  var badge = document.createElement('span');
+  badge.className = 'nav-badge nav-badge-light';
+  badge.textContent = 'Symbol Quiz · ' + unit.latin;
+  var pdots = document.createElement('div');
+  pdots.className = 'pdots';
+  ['done','done','active'].forEach(function(cls){
+    var pd = document.createElement('div');
+    pd.className = 'pd ' + cls;
+    pdots.appendChild(pd);
+  });
+  nav.appendChild(back); nav.appendChild(badge); nav.appendChild(pdots);
+
+  // Option D: isolated symbol for clear tropes, word-in-context for ambiguous ones
+  var symEl = document.getElementById('sq-symbol');
+  if (unit.ambiguous) {
+    symEl.style.fontSize = '44px';
+    symEl.style.letterSpacing = '4px';
+    symEl.innerHTML = highlightSymbolInWord(unit.symbolWord, unit.symbol);
+  } else {
+    symEl.style.fontSize = '120px';
+    symEl.style.letterSpacing = '0';
+    symEl.innerHTML =
+      '<span style="color:var(--text)">\u05D0</span>' +
+      '<span style="color:var(--gold);text-shadow:0 0 30px var(--gold-glow)">' +
+      unit.symbol + '</span>';
+  }
+
+  // Build 4 options (same distractor logic)
+  var distractors = getDistractors(unit, 3);
+  var opts = shuffleArr([unit].concat(distractors));
+  var container = document.getElementById('sq-opts');
+  container.innerHTML = '';
+  opts.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'sq-opt';
+    btn.innerHTML = '<span class="sq-opt-heb">' + opt.hebrew + '</span>';
+    btn.onclick = function(){ handleSymbolAnswer(btn, opt.id === unit.id, unit); };
+    container.appendChild(btn);
+  });
+}
+
+function handleSymbolAnswer(btn, isCorrect, unit) {
+  document.querySelectorAll('.sq-opt').forEach(function(b){ b.onclick = null; b.style.opacity='0.45'; });
+  btn.style.opacity = '1';
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (isCorrect) {
+    setTimeout(function(){
+      renderSuccess(unit);
+      showScreen('success');
+    }, 700);
+  } else {
+    document.querySelectorAll('.sq-opt').forEach(function(b){
+      if (b.querySelector('.sq-opt-lat').textContent === unit.latin) {
+        b.style.opacity = '1';
+        b.classList.add('correct');
+      }
+    });
+    setTimeout(function(){
+      document.querySelectorAll('.sq-opt').forEach(function(b){
+        b.classList.remove('correct','wrong');
+        b.style.opacity = '1';
+        var isRight = b.querySelector('.sq-opt-lat').textContent === unit.latin;
+        b.onclick = function(){ handleSymbolAnswer(b, isRight, unit); };
+      });
+    }, 1600);
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   QUIZ STEP 2 — Symbol → Sound
+══════════════════════════════════════════ */
+function renderQuizS2(unit) {
+  // NAV
+  var nav = document.getElementById('quiz-s2-nav');
+  nav.innerHTML = '';
+  var back = document.createElement('button');
+  back.className = 'back-btn back-dark';
+  back.textContent = '←';
+  back.onclick = function(){ renderQuiz(unit); showScreen('quiz'); };
+  var badge = document.createElement('span');
+  badge.className = 'nav-badge nav-badge-dark';
+  badge.textContent = unit.latin;
+  var pdots = document.createElement('div');
+  pdots.className = 'pdots';
+  ['done','done','active',''].forEach(function(cls){
+    var pd = document.createElement('div');
+    pd.className = 'pd ' + (cls||'nothing');
+    pd.className = 'pd' + (cls?' '+cls:'');
+    pdots.appendChild(pd);
+  });
+  nav.appendChild(back); nav.appendChild(badge); nav.appendChild(pdots);
+
+  // Symbol display (same as symbol mode — isolated or word)
+  var symEl = document.getElementById('qs2-symbol');
+  if (unit.ambiguous) {
+    symEl.style.fontSize = '44px';
+    symEl.style.letterSpacing = '4px';
+    symEl.style.color = 'var(--text)';
+    symEl.textContent = unit.symbolWord;
+  } else {
+    symEl.style.fontSize = '120px';
+    symEl.style.letterSpacing = '0';
+    symEl.innerHTML =
+      '<span style="color:var(--text)">א</span>' +
+      '<span style="color:var(--gold);text-shadow:0 0 30px var(--gold-glow)">' +
+      unit.symbol + '</span>';
+  }
+
+  // Options: play buttons
+  var distractors = getDistractors(unit, 3);
+  var opts = shuffleArr([unit].concat(distractors));
+  var container = document.getElementById('qs2-opts');
+  container.innerHTML = '';
+  opts.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'sq-opt';
+    btn.style.padding = '18px 10px';
+    var playBtn = document.createElement('div');
+    playBtn.className = 'dm-opt-play';
+    playBtn.textContent = '▶';
+    playBtn.onclick = function(e){
+      e.stopPropagation();
+      document.querySelectorAll('#qs2-opts .dm-opt-play').forEach(function(p){ p.textContent='▶'; });
+      playAudio(opt.audio, playBtn);
+      playBtn.textContent = '♪';
+      setTimeout(function(){ playBtn.textContent='▶'; }, 2000);
+    };
+    btn.appendChild(playBtn);
+    btn._isCorrect = (opt.id === unit.id);
+    btn.onclick = function(){ handleS2Answer(btn, opt.id === unit.id, unit); };
+    container.appendChild(btn);
+  });
+}
+
+function handleS2Answer(btn, isCorrect, unit) {
+  document.querySelectorAll('#qs2-opts .sq-opt').forEach(function(b){
+    b.onclick = null; b.style.opacity = '0.45';
+  });
+  btn.style.opacity = '1';
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (isCorrect) {
+    setTimeout(function(){ renderQuizS3(unit); showScreen('quiz-s3'); }, 700);
+  } else {
+    document.querySelectorAll('#qs2-opts .sq-opt').forEach(function(b){
+      if (b._isCorrect) { b.style.opacity='1'; b.classList.add('correct'); }
+    });
+    setTimeout(function(){
+      document.querySelectorAll('#qs2-opts .sq-opt').forEach(function(b){
+        b.classList.remove('correct','wrong');
+        b.style.opacity = '1';
+        b.onclick = function(){ handleS2Answer(b, b._isCorrect, unit); };
+      });
+    }, 1600);
+  }
+}
+
+/* ══════════════════════════════════════════
+   QUIZ STEP 3 — Word → Name
+══════════════════════════════════════════ */
+function renderQuizS3(unit) {
+  // NAV
+  var nav = document.getElementById('quiz-s3-nav');
+  nav.innerHTML = '';
+  var back = document.createElement('button');
+  back.className = 'back-btn back-dark';
+  back.textContent = '←';
+  back.onclick = function(){ renderQuizS2(unit); showScreen('quiz-s2'); };
+  var badge = document.createElement('span');
+  badge.className = 'nav-badge nav-badge-dark';
+  badge.textContent = unit.latin;
+  var pdots = document.createElement('div');
+  pdots.className = 'pdots';
+  ['done','done','done','active'].forEach(function(cls){
+    var pd = document.createElement('div');
+    pd.className = 'pd ' + cls;
+    pdots.appendChild(pd);
+  });
+  nav.appendChild(back); nav.appendChild(badge); nav.appendChild(pdots);
+
+  // Word display
+  document.getElementById('qs3-word').textContent = unit.symbolWord;
+
+  // Options: Hebrew names
+  var distractors = getDistractors(unit, 3);
+  var opts = shuffleArr([unit].concat(distractors));
+  var container = document.getElementById('qs3-opts');
+  container.innerHTML = '';
+  opts.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'sq-opt';
+    btn.innerHTML = '<span class="sq-opt-heb" style="font-size:26px;font-weight:700;color:#000">' + opt.hebrew + '</span>';
+    btn._isCorrect = (opt.id === unit.id);
+    btn.onclick = function(){ handleS3Answer(btn, opt.id === unit.id, unit); };
+    container.appendChild(btn);
+  });
+}
+
+function handleS3Answer(btn, isCorrect, unit) {
+  document.querySelectorAll('#qs3-opts .sq-opt').forEach(function(b){
+    b.onclick = null; b.style.opacity = '0.45';
+  });
+  btn.style.opacity = '1';
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (isCorrect) {
+    setTimeout(function(){ renderQuizS4(unit); showScreen('quiz-s4'); }, 700);
+  } else {
+    document.querySelectorAll('#qs3-opts .sq-opt').forEach(function(b){
+      if (b._isCorrect) { b.style.opacity='1'; b.classList.add('correct'); }
+    });
+    setTimeout(function(){
+      document.querySelectorAll('#qs3-opts .sq-opt').forEach(function(b){
+        b.classList.remove('correct','wrong');
+        b.style.opacity = '1';
+        b.onclick = function(){ handleS3Answer(b, b._isCorrect, unit); };
+      });
+    }, 1600);
+  }
+}
+
+
+/* ══════════════════════════════════════════
+   QUIZ STEP 4 — Name → Find the word
+══════════════════════════════════════════ */
+function renderQuizS4(unit) {
+  // NAV
+  var nav = document.getElementById('quiz-s4-nav');
+  nav.innerHTML = '';
+  var back = document.createElement('button');
+  back.className = 'back-btn back-dark';
+  back.textContent = '←';
+  back.onclick = function(){ renderQuizS3(unit); showScreen('quiz-s3'); };
+  var badge = document.createElement('span');
+  badge.className = 'nav-badge nav-badge-dark';
+  badge.textContent = unit.latin;
+  var pdots = document.createElement('div');
+  pdots.className = 'pdots';
+  ['done','done','done','active'].forEach(function(cls){
+    var pd = document.createElement('div');
+    pd.className = 'pd ' + cls;
+    pdots.appendChild(pd);
+  });
+  nav.appendChild(back); nav.appendChild(badge); nav.appendChild(pdots);
+
+  // Show trope name
+  document.getElementById('qs4-name').textContent = unit.hebrew;
+  document.getElementById('qs4-latin').textContent = unit.latin;
+
+  // Options: 4 symbolWords — target + 3 distractors
+  var distractors = getDistractors(unit, 3);
+  var opts = shuffleArr([unit].concat(distractors));
+  var container = document.getElementById('qs4-opts');
+  container.innerHTML = '';
+  opts.forEach(function(opt) {
+    var btn = document.createElement('button');
+    btn.className = 'sq-opt';
+    btn.style.padding = '18px 12px';
+    var word = document.createElement('span');
+    word.style.fontFamily = "'SBL Hebrew','Noto Serif Hebrew',serif";
+    word.style.fontSize = '32px';
+    word.style.color = '#000';
+    word.style.fontWeight = '400';
+    word.style.direction = 'rtl';
+    word.textContent = opt.symbolWord;
+    btn.appendChild(word);
+    btn._isCorrect = (opt.id === unit.id);
+    btn.onclick = function(){ handleS4Answer(btn, opt.id === unit.id, unit); };
+    container.appendChild(btn);
+  });
+}
+
+function handleS4Answer(btn, isCorrect, unit) {
+  document.querySelectorAll('#qs4-opts .sq-opt').forEach(function(b){
+    b.onclick = null; b.style.opacity = '0.45';
+  });
+  btn.style.opacity = '1';
+  btn.classList.add(isCorrect ? 'correct' : 'wrong');
+  if (isCorrect) {
+    if (!isLearned(unit.id)) {
+      state.learnedUnits.push(unit.id);
+      state.xp += 25;
+      saveState();
+    }
+    setTimeout(function(){ renderSuccess(unit); showScreen('success'); }, 700);
+  } else {
+    document.querySelectorAll('#qs4-opts .sq-opt').forEach(function(b){
+      if (b._isCorrect) { b.style.opacity = '1'; b.classList.add('correct'); }
+    });
+    setTimeout(function(){
+      document.querySelectorAll('#qs4-opts .sq-opt').forEach(function(b){
+        b.classList.remove('correct','wrong');
+        b.style.opacity = '1';
+        b.onclick = function(){ handleS4Answer(b, b._isCorrect, unit); };
+      });
+    }, 1600);
+  }
+}
+
+/* ══════════════════════════════════════════
+   RENDER: SUCCESS
+══════════════════════════════════════════ */
+function renderSuccess(unit) {
+  var idx = UNITS.findIndex(function(u){ return u.id === unit.id; });
+  var nextIdx = idx + 1 < UNITS.length ? idx + 1 : null;
+  var nextUnit = nextIdx !== null ? UNITS[nextIdx] : null;
+  var sameGroup = nextUnit && nextUnit.group === unit.group;
+
+  var body = document.getElementById('suc-body');
+  body.innerHTML =
+    '<div class="suc-star">⭐</div>' +
+    '<div class="suc-title">!כָּל הַכָּבוֹד</div>' +
+    '<div class="suc-sub">Excellent work!</div>' +
+    '<div class="xp-chip">+25 XP</div>' +
+    '<div class="suc-card"><span class="suc-card-heb">' + unit.hebrew + '</span>' +
+    '<span class="suc-card-lbl">' + unit.latin + ' — Learned ✓</span></div>';
+
+  if (nextUnit) {
+    var preview = document.createElement('div');
+    preview.className = 'next-preview';
+    preview.innerHTML = '<div class="np-label">NEXT</div><div class="np-name">' +
+      (sameGroup ? unit.latin.split(' ').slice(-1)[0] + ' Group: ' : '') + nextUnit.latin + '</div>';
+    body.appendChild(preview);
+  }
+
+  var foot = document.getElementById('suc-foot');
+  foot.innerHTML = '';
+
+  if (nextUnit) {
+    var contBtn = document.createElement('button');
+    contBtn.className = 'btn-p';
+    contBtn.innerHTML = 'Next: ' + nextUnit.latin + ' →';
+    contBtn.onclick = function(){ startUnit(nextIdx); };
+    foot.appendChild(contBtn);
+  }
+
+  var homeBtn = document.createElement('button');
+  homeBtn.className = 'btn-s';
+  homeBtn.textContent = '↩ Back to Journey Map';
+  homeBtn.onclick = function(){ renderLearn(); showScreen('learn'); };
+  foot.appendChild(homeBtn);
+}
+
+/* ══════════════════════════════════════════
+   RENDER: REFERENCE
+══════════════════════════════════════════ */
+function renderReference() {
+  var scroll = document.getElementById('ref-scroll');
+  scroll.innerHTML = '';
+
+  GROUPS.forEach(function(group) {
+    var firstUnit = UNITS[group.units[0]];
+    var header = document.createElement('div');
+    header.className = 'ref-section-head';
+    // Human-readable group name
+    var gName = firstUnit.group === 'conjunctives'
+      ? 'Standalone Conjunctives'
+      : firstUnit.hebrew + ' · ' + firstUnit.latin + ' Group';
+    header.textContent = gName;
+    scroll.appendChild(header);
+
+    group.units.forEach(function(i) {
+      var u = UNITS[i];
+      var learned = isLearned(u.id);
+      var available = isAvailable(i);
+      var locked = !available && !learned;
+
+      var card = document.createElement('div');
+      card.className = 'ref-unit' + (learned?' learned':'') + (locked?' locked':'');
+
+      var orb = document.createElement('div');
+      orb.className = 'ref-orb ' + (locked ? 'ref-orb-locked' : learned ? 'ref-orb-learned' : 'ref-orb-available');
+      orb.textContent = u.hebrew[0];
+      card.appendChild(orb);
+
+      var info = document.createElement('div');
+      info.className = 'ref-info';
+      info.innerHTML =
+        '<div class="ref-heb">' + u.hebrew + '</div>' +
+        '<div class="ref-lat">' + u.latin + '</div>' +
+        '<div class="ref-badge">' + u.category + '</div>';
+      card.appendChild(info);
+
+      if (learned) {
+        var stars = document.createElement('div');
+        stars.className = 'ref-stars';
+        stars.textContent = '★★★';
+        card.appendChild(stars);
+      }
+
+      if (!locked) {
+        var playBtn = document.createElement('div');
+        playBtn.className = 'ref-play';
+        playBtn.textContent = '▶';
+        playBtn.onclick = function(e){
+          e.stopPropagation();
+          playAudio(u.audio, playBtn);
+        };
+        card.appendChild(playBtn);
+      }
+
+      if (!locked) {
+        card.onclick = function(){
+          state.currentUnitId = u.id;
+          saveState();
+          renderMeet(u);
+          showScreen('meet');
+        };
+      }
+
+      scroll.appendChild(card);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+loadState();
+renderHome();
+
+</script>
+</body>
+</html>
